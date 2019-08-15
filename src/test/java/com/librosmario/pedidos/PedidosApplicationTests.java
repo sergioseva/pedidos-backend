@@ -1,5 +1,7 @@
 package com.librosmario.pedidos;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,5 +14,13 @@ public class PedidosApplicationTests {
 	@Test
 	public void contextLoads() {
 	}
+	
+	
+	@Test
+	public void testDummy() {
+		assertTrue(true);
+	}
+	
+	
 
 }
