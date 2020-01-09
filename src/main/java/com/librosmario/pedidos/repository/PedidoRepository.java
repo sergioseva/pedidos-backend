@@ -1,29 +1,27 @@
-package com.librosmario.pedidos.dao;
+package com.librosmario.pedidos.repository;
 
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import com.librosmario.pedidos.entity.Pedido;
 import com.librosmario.pedidos.entity.projections.PedidoProjection;
 
 @RepositoryRestResource(path="pedidos",excerptProjection=PedidoProjection.class)
 @CrossOrigin(origins = "http://localhost:4200")
-public interface PedidoRepository extends CrudRepository<Pedido, Integer> {
+public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
+
 
 	@Query("SELECT DISTINCT p FROM " + 
 			 "Pedido p INNER JOIN p.pedidoItems b WHERE b.libro LIKE CONCAT('%',:libro,'%')")
-	@GetMapping("pedidosConLibro")
 	List<Pedido> findPedidosConLibro(@Param("libro") String libro);
 	
-	@GetMapping("pedidosDeCliente")
+
 	List<Pedido> findByClienteNombreContainsAllIgnoreCase(@Param("cliente") String cliente);
 	
 	@Query("SELECT DISTINCT p FROM " + 

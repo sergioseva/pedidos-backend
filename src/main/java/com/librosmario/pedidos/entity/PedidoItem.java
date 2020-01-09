@@ -1,9 +1,9 @@
 package com.librosmario.pedidos.entity;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name="pi_pedido_item")
@@ -26,9 +28,8 @@ public class PedidoItem {
 	  @Column(name="pi_pedido_item_k")
 	  private Integer id;
 	  
-
-	  @ManyToOne( cascade= {CascadeType.PERSIST, CascadeType.MERGE,
-				 CascadeType.DETACH, CascadeType.REFRESH})
+	  @JsonIgnore
+	  @ManyToOne(fetch = FetchType.LAZY)
 	  @JoinColumn(name="pi_pedido_pe") 
 	  private Pedido pedido;
 	  
@@ -54,19 +55,26 @@ public class PedidoItem {
 
 	  @OneToOne(fetch = FetchType.LAZY)
 	  @JoinColumn(name = "pi_editorial_ed")
-	  private Editorial pedidoAeditorial;
+	  private Distribuidora pedidoAeditorial;
 	  
 	  @Column(name="pi_pendiente")
 	  private boolean pendiente;
-	  @ManyToMany(fetch=FetchType.LAZY,
-				cascade= {CascadeType.PERSIST, CascadeType.MERGE,
-				 CascadeType.DETACH, CascadeType.REFRESH})
+	  @Column(name="pi_ensucursal")
+	  private boolean enSucursal=false;
+	  @Column(name="pi_retirado")
+	  private boolean retirado=false;
+	  @Column(name="pi_fecha_retiro")
+	  private LocalDateTime fechaRetiro;
+	 
+
+
+	  @ManyToMany(fetch=FetchType.LAZY)
 	  @JoinTable(
 				name="pdpi_pedido_distribuidora_item",
 				joinColumns=@JoinColumn(name="pdpi_pedido_item_pi"),
 				inverseJoinColumns=@JoinColumn(name="pdpi_pedido_a_distribuidora_pd")
 				)	
-	  private List<PedidoADistribuidora> pedidosADistribuidoras;
+	  private List<PedidoDistribuidora> pedidosADistribuidoras;
 	
 	  
 	public PedidoItem() {
@@ -153,12 +161,12 @@ public class PedidoItem {
 		this.precio = precio;
 	}
 
-	public Editorial getPedidoAeditorial() {
+	public Distribuidora getPedidoAeditorial() {
 		return pedidoAeditorial;
 	}
 
 
-	public void setPedidoAeditorial(Editorial pedidoAeditorial) {
+	public void setPedidoAeditorial(Distribuidora pedidoAeditorial) {
 		this.pedidoAeditorial = pedidoAeditorial;
 	}
 
@@ -168,7 +176,7 @@ public class PedidoItem {
 	}
 
 
-	public boolean isPendiente() {
+	public boolean getPendiente() {
 		return pendiente;
 	}
 
@@ -178,14 +186,46 @@ public class PedidoItem {
 	}
 
 
-	public List<PedidoADistribuidora> getPedidosADistribuidoras() {
+	public List<PedidoDistribuidora> getPedidosADistribuidoras() {
 		return pedidosADistribuidoras;
 	}
 
 
-	public void setPedidosADistribuidoras(List<PedidoADistribuidora> pedidosADistribuidoras) {
+	public void setPedidosADistribuidoras(List<PedidoDistribuidora> pedidosADistribuidoras) {
 		this.pedidosADistribuidoras = pedidosADistribuidoras;
 	}
+	
+	 public boolean isEnSucursal() {
+			return enSucursal;
+		}
+
+
+		public void setEnSucursal(boolean enSucursal) {
+			this.enSucursal = enSucursal;
+		}
+
+
+		public boolean isRetirado() {
+			return retirado;
+		}
+
+
+		public void setRetirado(boolean retirado) {
+			this.retirado = retirado;
+		}
+
+
+		public LocalDateTime getFechaRetiro() {
+			return fechaRetiro;
+		}
+
+
+		public void setFechaRetiro(LocalDateTime fechaRetiro) {
+			this.fechaRetiro = fechaRetiro;
+		}
+
+
+
 	
 
 }

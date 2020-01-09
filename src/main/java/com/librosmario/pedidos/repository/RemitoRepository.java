@@ -1,4 +1,4 @@
-package com.librosmario.pedidos.dao;
+package com.librosmario.pedidos.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

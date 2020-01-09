@@ -1,6 +1,7 @@
 package com.librosmario.pedidos.entity;
 
-import java.util.ArrayList;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -14,9 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.sql.Date;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 @Entity
 @Table(name="pe_pedido")
@@ -26,9 +25,9 @@ public class Pedido {
 	@Column(name="pe_pedido_k")
     private int id;
 	
-	@OneToOne( cascade= {CascadeType.PERSIST, CascadeType.MERGE,
-						 CascadeType.DETACH, CascadeType.REFRESH})
+	@OneToOne()
 	@JoinColumn(name="pe_cliente_cl")
+	//@RestResource(path = "libraryAddress", rel="address")
     private Cliente cliente;
 	
 	@Column(name="pe_fecha")
@@ -42,13 +41,12 @@ public class Pedido {
 	@Column(name="pe_domicilio")
     private String domicilio;
 	@Column(name="pe_fecha_envio")
-    private Date fechaEnvio;
+    private LocalDateTime fechaEnvio;
 	@Column(name="pe_observaciones")
     private String observaciones;
 	
 	
-	@OneToMany(mappedBy = "pedido",cascade= {CascadeType.PERSIST, CascadeType.MERGE,
-			 CascadeType.DETACH, CascadeType.REFRESH})
+	@OneToMany(mappedBy = "pedido",cascade = CascadeType.ALL)
     private List<PedidoItem> pedidoItems;
 
 
@@ -122,13 +120,13 @@ public class Pedido {
 	}
 
 
-	public Date getFechaEnvio() {
+	public LocalDateTime getFechaEnvio() {
 		return fechaEnvio;
 	}
 
 
-	public void setFechaEnvio(Date fechaEnvio) {
-		this.fechaEnvio = fechaEnvio;
+	public void setFechaEnvio(LocalDateTime localDateTime) {
+		this.fechaEnvio = localDateTime;
 	}
 
 

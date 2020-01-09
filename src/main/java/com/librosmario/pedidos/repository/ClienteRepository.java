@@ -1,4 +1,4 @@
-package com.librosmario.pedidos.dao;
+package com.librosmario.pedidos.repository;
 
 import java.util.List;
 
@@ -13,6 +13,6 @@ import com.librosmario.pedidos.entity.projections.PedidoProjection;
 @CrossOrigin(origins = "http://localhost:4200")
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
-	List<Cliente> findByNombreContainsAndTelefonoMovilContainsAllIgnoreCase(String theFirstName, String thePhone);
+	List<Cliente> findByTelefonoMovilContainsAllIgnoreCase(String thePhone);
 	List<Cliente> findByNombreContainsAllIgnoreCase(String theFirstName);
 }

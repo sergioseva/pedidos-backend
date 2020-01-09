@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.librosmario.pedidos.dao.ClienteRepository;
 import com.librosmario.pedidos.entity.Cliente;
+import com.librosmario.pedidos.repository.ClienteRepository;
 
 @RepositoryRestController
 public class ClienteController {
@@ -26,32 +26,24 @@ public class ClienteController {
         repository = repo;
     }
     
-    @GetMapping( value = "/clientes/search/findByCriteria")
-    public @ResponseBody ResponseEntity<?> findByCriteria(@Param("libro") String libro) {
+    @GetMapping( value = "/clientes/search/findByName")
+    public @ResponseBody ResponseEntity<?> findByName(@Param("name") String name) {
     	
-    	List<Cliente> clientes=repository.findByNombreContainsAllIgnoreCase(libro);
+    	List<Cliente> clientes=repository.findByNombreContainsAllIgnoreCase(name);
     	
     	Resources<Cliente> resources = new Resources<Cliente>(clientes);
-    	//ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllStudents());
-    	//resources.add(linkTo(methodOn(ClienteController.class).findByCriteria()).withSelfRel());
-    	
     	return ResponseEntity.ok(resources); 
     	
     }
-//    @Autowired
-//    private ClienteRepository employeRepository;
-//    
-//    @Autowired
-//    private PagedResourcesAssembler<Cliente> pagedAssembler;
-//    
-//    @RequestMapping(value = "/employees/search/all/search/all", method = RequestMethod.GET)
-//    public ResponseEntity<Resources<Resource<Employee>>> getEmployees(EmployeeCriteria filterCriteria, Pageable pageable) {
-//
-//        //EmployeeSpecification uses CriteriaAPI to form dynamic query with the fields from filterCriteria
-//        Specification<Employee> specification = new EmployeeSpecification(filterCriteria);
-//
-//        Page<Employee> employees = employeeRepository.findAll(specification, pageable);
-//        return assembler.toResource(employees);
-//    }
+    
+    @GetMapping( value = "/clientes/search/findByPhone")
+    public @ResponseBody ResponseEntity<?> findByCriteria(@Param("phone") String phone) {
+    	
+    	List<Cliente> clientes=repository.findByTelefonoMovilContainsAllIgnoreCase(phone);
+    	
+    	Resources<Cliente> resources = new Resources<Cliente>(clientes);
+    	return ResponseEntity.ok(resources); 
+    	
+    }
 
 }

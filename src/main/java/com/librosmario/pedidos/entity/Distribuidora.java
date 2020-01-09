@@ -9,29 +9,34 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="ed_editorial")
-public class Editorial {
+public class Distribuidora {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name="ed_editorial_k")
-  private int ed_editorial_k;
+  private int id;
   
   @Column(name="ed_descripcion")
-  private String ed_descripcion;
+  private String descripcion;
   
-public Editorial() {
+public Distribuidora() {
 	
 }
   
-public int getEd_editorial_k() {
-	return ed_editorial_k;
+
+public int getId() {
+	return id;
 }
-public void setEd_editorial_k(int ed_editorial_k) {
-	this.ed_editorial_k = ed_editorial_k;
+
+
+public void setId(int id) {
+	this.id = id;
 }
-public String getEd_descripcion() {
-	return ed_descripcion;
+
+
+public String getDescripcion() {
+	return descripcion;
 }
-public void setEd_descripcion(String ed_descripcion) {
-	this.ed_descripcion = ed_descripcion;
+public void setDescripcion(String ed_descripcion) {
+	this.descripcion = ed_descripcion;
 }
 }

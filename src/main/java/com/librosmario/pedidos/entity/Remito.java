@@ -32,7 +32,7 @@ public class Remito {
 	 @ManyToOne(cascade= {CascadeType.PERSIST, CascadeType.MERGE,
 			 CascadeType.DETACH, CascadeType.REFRESH})
 	 @JoinColumn(name="re_distribuidora_ed")
-	 Editorial re_distribuidora_ed;	
+	 Distribuidora re_distribuidora_ed;	
 	 
 	 @Column(name="re_observaciones")
 	 String re_observaciones;
@@ -69,10 +69,10 @@ public class Remito {
 	public void setRe_fecha(Date re_fecha) {
 		this.re_fecha = re_fecha;
 	}
-	public Editorial getRe_distribuidora_ed() {
+	public Distribuidora getRe_distribuidora_ed() {
 		return re_distribuidora_ed;
 	}
-	public void setRe_distribuidora_ed(Editorial re_distribuidora_ed) {
+	public void setRe_distribuidora_ed(Distribuidora re_distribuidora_ed) {
 		this.re_distribuidora_ed = re_distribuidora_ed;
 	} 
 

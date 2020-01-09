@@ -1,38 +1,36 @@
 package com.librosmario.pedidos.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.librosmario.pedidos.dao.PedidoRepository;
 import com.librosmario.pedidos.entity.Pedido;
+import com.librosmario.pedidos.service.PedidoService;
 
-@RepositoryRestController
+@RestController
 public class PedidoController {
 	
-	private final PedidoRepository repository;
+	@Autowired 
+	PedidoService service;
 	
-    @Autowired
-    public PedidoController(PedidoRepository repo) { 
-        repository = repo;
+	
+
+    @PostMapping(value="/pedidosnuevo",consumes={"application/json"})
+    public ResponseEntity<Pedido> createPedido(@RequestBody Pedido pedido){
+    	
+    	try {
+    		service.createPedido(pedido);
+    		return new ResponseEntity<Pedido>(pedido,HttpStatus.CREATED);
+    	} catch (Exception e) {
+    		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There was an error saving the pedido", e);
+    		//return new ResponseEntity<Pedido>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+    	}
     }
     
-   // @RequestMapping(method = GET, value = "/scanners/search/listProducers")
-	
-//    @Autowired
-//    private PedidoRepository employeRepository;
-//    
-//    @Autowired
-//    private PagedResourcesAssembler<Pedido> pagedAssembler;
-//    
-//    @RequestMapping(value = "/employees/search/all/search/all", method = RequestMethod.GET)
-//    public ResponseEntity<Resources<Resource<Employee>>> getEmployees(EmployeeCriteria filterCriteria, Pageable pageable) {
-//
-//        //EmployeeSpecification uses CriteriaAPI to form dynamic query with the fields from filterCriteria
-//        Specification<Employee> specification = new EmployeeSpecification(filterCriteria);
-//
-//        Page<Employee> employees = employeeRepository.findAll(specification, pageable);
-//        return assembler.toResource(employees);
-//    }
+
 
 }
