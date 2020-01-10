@@ -53,7 +53,7 @@ public class PedidoItem {
 	  private Double precio;
 	  
 
-	  @OneToOne(fetch = FetchType.LAZY)
+	  @OneToOne()
 	  @JoinColumn(name = "pi_editorial_ed")
 	  private Distribuidora pedidoAeditorial;
 	  
@@ -67,7 +67,7 @@ public class PedidoItem {
 	  private LocalDateTime fechaRetiro;
 	 
 
-
+	  @JsonIgnore
 	  @ManyToMany(fetch=FetchType.LAZY)
 	  @JoinTable(
 				name="pdpi_pedido_distribuidora_item",

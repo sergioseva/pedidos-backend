@@ -2,6 +2,8 @@ package com.librosmario.pedidos.entity;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -31,7 +33,7 @@ public class Pedido {
     private Cliente cliente;
 	
 	@Column(name="pe_fecha")
-    private Date fecha;
+    private LocalDateTime fecha=LocalDateTime.now();
 	@Column(name="pe_senia")
     private Double senia;
 	@Column(name="pe_total")
@@ -70,12 +72,12 @@ public class Pedido {
 	}
 
 
-	public Date getFecha() {
+	public LocalDateTime getFecha() {
 		return fecha;
 	}
 
 
-	public void setFecha(Date fecha) {
+	public void setFecha(LocalDateTime fecha) {
 		this.fecha = fecha;
 	}
 

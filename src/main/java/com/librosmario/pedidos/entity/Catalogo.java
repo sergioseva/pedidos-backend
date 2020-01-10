@@ -14,149 +14,151 @@ public class Catalogo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="cg_catalogo_k")
-	Integer cg_catalogo_k;
+	Integer id;
 	@Column(name="cg_codigo_luongo")
-	Integer cg_codigo_luongo;
+	Integer codigoLuongo;
 	@Column(name="cg_autor")
-	String cg_autor;
+	String autor;
 	@Column(name="cg_descripcion")
-	String cg_descripcion;
+	String descripcion;
 	@Column(name="cg_precio")
-	Double cg_precio;
+	Double precio;
 	@Column(name="cg_pedido")
-	int cg_pedido;
+	int pedido;
 	@Column(name="cg_vigente")
-	Boolean cg_vigente;
+	Boolean vigente;
 	@Column(name="cg_editorial")
-	String cg_editorial;
+	String editorial;
 	@Column(name="cg_tema")
-	String cg_tema;
+	String tema;
 	@Column(name="cg_isbn")
-	String cg_isbn;
+	String isbn;
 	@Column(name="cg_pst")
-	int cg_pst;
+	int pst;
 	@Column(name="cg_observaciones")
-	String cg_observaciones;
+	String observaciones;
 	@Column(name="cg_creador")
-	String cg_creador;
+	String creador;
 	@Column(name="cg_inputdate")
-	Date cg_inputdate;
+	Date inputdate;
 	
 	public Catalogo() {
 
 	}
 
-	public Integer getCg_catalogo_k() {
-		return cg_catalogo_k;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setCg_catalogo_k(Integer cg_catalogo_k) {
-		this.cg_catalogo_k = cg_catalogo_k;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	public Integer getCg_codigo_luongo() {
-		return cg_codigo_luongo;
+	public Integer getCodigoLuongo() {
+		return codigoLuongo;
 	}
 
-	public void setCg_codigo_luongo(Integer cg_codigo_luongo) {
-		this.cg_codigo_luongo = cg_codigo_luongo;
+	public void setCodigoLuongo(Integer codigoLuongo) {
+		this.codigoLuongo = codigoLuongo;
 	}
 
-	public String getCg_autor() {
-		return cg_autor;
+	public String getAutor() {
+		return autor;
 	}
 
-	public void setCg_autor(String cg_autor) {
-		this.cg_autor = cg_autor;
+	public void setAutor(String autor) {
+		this.autor = autor;
 	}
 
-	public String getCg_descripcion() {
-		return cg_descripcion;
+	public String getDescripcion() {
+		return descripcion;
 	}
 
-	public void setCg_descripcion(String cg_descripcion) {
-		this.cg_descripcion = cg_descripcion;
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
 	}
 
-	public Double getCg_precio() {
-		return cg_precio;
+	public Double getPrecio() {
+		return precio;
 	}
 
-	public void setCg_precio(Double cg_precio) {
-		this.cg_precio = cg_precio;
+	public void setPrecio(Double precio) {
+		this.precio = precio;
 	}
 
-	public int getCg_pedido() {
-		return cg_pedido;
+	public int getPedido() {
+		return pedido;
 	}
 
-	public void setCg_pedido(int cg_pedido) {
-		this.cg_pedido = cg_pedido;
+	public void setPedido(int pedido) {
+		this.pedido = pedido;
 	}
 
-	public Boolean getCg_vigente() {
-		return cg_vigente;
+	public Boolean getVigente() {
+		return vigente;
 	}
 
-	public void setCg_vigente(Boolean cg_vigente) {
-		this.cg_vigente = cg_vigente;
+	public void setVigente(Boolean vigente) {
+		this.vigente = vigente;
 	}
 
-	public String getCg_editorial() {
-		return cg_editorial;
+	public String getEditorial() {
+		return editorial;
 	}
 
-	public void setCg_editorial(String cg_editorial) {
-		this.cg_editorial = cg_editorial;
+	public void setEditorial(String editorial) {
+		this.editorial = editorial;
 	}
 
-	public String getCg_tema() {
-		return cg_tema;
+	public String getTema() {
+		return tema;
 	}
 
-	public void setCg_tema(String cg_tema) {
-		this.cg_tema = cg_tema;
+	public void setTema(String tema) {
+		this.tema = tema;
 	}
 
-	public String getCg_isbn() {
-		return cg_isbn;
+	public String getIsbn() {
+		return isbn;
 	}
 
-	public void setCg_isbn(String cg_isbn) {
-		this.cg_isbn = cg_isbn;
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
 	}
 
-	public int getCg_pst() {
-		return cg_pst;
+	public int getPst() {
+		return pst;
 	}
 
-	public void setCg_pst(int cg_pst) {
-		this.cg_pst = cg_pst;
+	public void setPst(int pst) {
+		this.pst = pst;
 	}
 
-	public String getCg_observaciones() {
-		return cg_observaciones;
+	public String getObservaciones() {
+		return observaciones;
 	}
 
-	public void setCg_observaciones(String cg_observaciones) {
-		this.cg_observaciones = cg_observaciones;
+	public void setObservaciones(String observaciones) {
+		this.observaciones = observaciones;
 	}
 
-	public String getCg_creador() {
-		return cg_creador;
+	public String getCreador() {
+		return creador;
 	}
 
-	public void setCg_creador(String cg_creador) {
-		this.cg_creador = cg_creador;
+	public void setCreador(String creador) {
+		this.creador = creador;
 	}
 
-	public Date getCg_inputdate() {
-		return cg_inputdate;
+	public Date getInputdate() {
+		return inputdate;
 	}
 
-	public void setCg_inputdate(Date cg_inputdate) {
-		this.cg_inputdate = cg_inputdate;
+	public void setInputdate(Date inputdate) {
+		this.inputdate = inputdate;
 	}
+
+	
 	
 
 }
