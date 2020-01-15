@@ -1,9 +1,14 @@
-package com.librosmario.pedidos.entity;
+package com.librosmario.pedidos.entity.staticmodels;
 
 import java.time.LocalDateTime;
 
 import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import com.librosmario.pedidos.entity.Distribuidora;
+import com.librosmario.pedidos.entity.Pedido;
+import com.librosmario.pedidos.entity.PedidoDistribuidora;
+import com.librosmario.pedidos.entity.PedidoItem;
 
 @javax.persistence.metamodel.StaticMetamodel(PedidoItem.class)
 

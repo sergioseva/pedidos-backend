@@ -11,11 +11,11 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.librosmario.pedidos.entity.Catalogo;
 import com.librosmario.pedidos.entity.Cliente;
-import com.librosmario.pedidos.entity.Cliente_;
 import com.librosmario.pedidos.entity.Pedido;
 import com.librosmario.pedidos.entity.PedidoItem;
-import com.librosmario.pedidos.entity.PedidoItem_;
-import com.librosmario.pedidos.entity.Pedido_;
+import com.librosmario.pedidos.entity.staticmodels.Cliente_;
+import com.librosmario.pedidos.entity.staticmodels.PedidoItem_;
+import com.librosmario.pedidos.entity.staticmodels.Pedido_;
 
 public final class  PedidoSpecifications {
 

@@ -15,6 +15,7 @@ public class Catalogo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="cg_catalogo_k")
 	Integer id;
+
 	@Column(name="cg_codigo_luongo")
 	Integer codigoLuongo;
 	@Column(name="cg_autor")
@@ -23,18 +24,14 @@ public class Catalogo {
 	String descripcion;
 	@Column(name="cg_precio")
 	Double precio;
-	@Column(name="cg_pedido")
-	int pedido;
-	@Column(name="cg_vigente")
-	Boolean vigente;
 	@Column(name="cg_editorial")
 	String editorial;
+
+
 	@Column(name="cg_tema")
 	String tema;
 	@Column(name="cg_isbn")
 	String isbn;
-	@Column(name="cg_pst")
-	int pst;
 	@Column(name="cg_observaciones")
 	String observaciones;
 	@Column(name="cg_creador")
@@ -45,7 +42,25 @@ public class Catalogo {
 	public Catalogo() {
 
 	}
+	public Catalogo(Integer codigoLuongo, String autor, String descripcion, Double precio, String editorial,
+			String tema, String isbn, String observaciones) {
+		this.codigoLuongo = codigoLuongo;
+		this.autor = autor;
+		this.descripcion = descripcion;
+		this.precio = precio;
+		this.editorial = editorial;
+		this.tema = tema;
+		this.isbn = isbn;
+		this.observaciones = observaciones;
+	}
+	
 
+	@Override
+	public String toString() {
+		return "Catalogo [codigoLuongo=" + codigoLuongo + ", autor=" + autor + ", descripcion=" + descripcion
+				+ ", precio=" + precio + ", editorial=" + editorial + ", tema=" + tema + ", isbn=" + isbn
+				+ ", observaciones=" + observaciones + "]";
+	}
 	public Integer getId() {
 		return id;
 	}
@@ -86,22 +101,6 @@ public class Catalogo {
 		this.precio = precio;
 	}
 
-	public int getPedido() {
-		return pedido;
-	}
-
-	public void setPedido(int pedido) {
-		this.pedido = pedido;
-	}
-
-	public Boolean getVigente() {
-		return vigente;
-	}
-
-	public void setVigente(Boolean vigente) {
-		this.vigente = vigente;
-	}
-
 	public String getEditorial() {
 		return editorial;
 	}
@@ -124,14 +123,6 @@ public class Catalogo {
 
 	public void setIsbn(String isbn) {
 		this.isbn = isbn;
-	}
-
-	public int getPst() {
-		return pst;
-	}
-
-	public void setPst(int pst) {
-		this.pst = pst;
 	}
 
 	public String getObservaciones() {

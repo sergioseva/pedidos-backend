@@ -1,28 +1,54 @@
 package com.librosmario.pedidos.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.librosmario.pedidos.entity.Catalogo;
-import com.librosmario.pedidos.repository.CatalogoRepository;
 import com.librosmario.pedidos.service.CatalogoService;
 
 @RestController
 public class CatalogoController {
-	
+	private static final Logger logger = LogManager.getLogger(CatalogoController.class);
 
 	@Autowired
 	CatalogoService service;
+	
+    @Autowired
+    JobLauncher jobLauncher;
+
+    @Autowired
+    Job job;
+    
+    @Value("${pedidos.luongo.path}")
+    private String filePath;
 
     
     @GetMapping( value = "/catalogos/search/findByAny")
     public ResponseEntity<List<Catalogo>> findByAny(@Param("parametro") String parametro) {
     	
+    	logger.info("find by any");
     	List<Catalogo> catalogos=service.findByAny(parametro);
     	return ResponseEntity.ok(catalogos); 
     	
@@ -39,6 +65,22 @@ public class CatalogoController {
     	List<Catalogo> catalogos=service.findByAll(libro,autor,editorial,tema,isbn);
     	return ResponseEntity.ok(catalogos); 
     	
+    }
+    
+    @PostMapping( value = "/catalogos/import")
+    public  ResponseEntity<Boolean> importCatalogo(@RequestParam("file") MultipartFile file) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+    	
+    	Path rootLocation;
+    	rootLocation= Paths.get(filePath) ;
+    	
+    	try {
+		      Files.copy(file.getInputStream(), rootLocation.resolve("luongo.csv"), StandardCopyOption.REPLACE_EXISTING);
+		    } catch (Exception e) {
+		      throw new RuntimeException("FAIL to store the file luongo");
+		    }
+    	
+    	jobLauncher.run(job, new JobParameters());
+    	return ResponseEntity.ok(true); 
     }
 
 }

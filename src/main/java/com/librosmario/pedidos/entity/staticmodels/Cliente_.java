@@ -1,6 +1,8 @@
-package com.librosmario.pedidos.entity;
+package com.librosmario.pedidos.entity.staticmodels;
 
 import javax.persistence.metamodel.SingularAttribute;
+
+import com.librosmario.pedidos.entity.Cliente;
 
 @javax.persistence.metamodel.StaticMetamodel(Cliente.class)
 

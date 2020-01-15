@@ -24,3 +24,18 @@ SET
 `pi_retirado` = 1;
 
 commit;
+
+CREATE TABLE `librosmario`.`bt_batchstatistics` (
+  `id` INT NOT NULL,
+  `bt_proceso` VARCHAR(45) NOT NULL,
+  `bt_starttime` DATETIME NULL,
+  `bt_endtime` DATETIME NULL,
+  `bt_registros` INT NULL,
+  `bt_errores` INT NULL,
+  PRIMARY KEY (`id`));
+  
+ALTER TABLE `librosmario`.`bt_batchstatistics` 
+CHANGE COLUMN `id` `id` INT(11) NOT NULL AUTO_INCREMENT ,
+ADD UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE;
+;
+  
