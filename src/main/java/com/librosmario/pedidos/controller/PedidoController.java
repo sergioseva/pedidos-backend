@@ -40,8 +40,8 @@ public class PedidoController {
     											  @Param("fechaDesde") String fechaDesde,
     											  @Param("fechaHasta") String fechaHasta) {
     	
-    	List<Pedido> catalogos=service.findByAny(parametro,fechaDesde,fechaHasta);
-    	return ResponseEntity.ok(catalogos); 
+    	List<Pedido> pedidos=service.findByAny(parametro,fechaDesde,fechaHasta);
+    	return ResponseEntity.ok(pedidos); 
     	
     }
     
@@ -53,8 +53,8 @@ public class PedidoController {
     		) {
 
     	
-    	List<Pedido> catalogos=service.findByAll(libro,cliente,fechaDesde,fechaHasta);
-    	return ResponseEntity.ok(catalogos); 
+    	List<Pedido> pedidos=service.findByAll(libro,cliente,fechaDesde,fechaHasta);
+    	return ResponseEntity.ok(pedidos); 
     	
     }
     

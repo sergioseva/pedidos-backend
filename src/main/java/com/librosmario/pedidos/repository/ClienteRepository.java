@@ -19,8 +19,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer>,
 	List<Cliente> findByTelefonoMovilContainsAllIgnoreCase(String thePhone);
 
 	List<Cliente> findByNombreContainsAllIgnoreCase(String theFirstName);
-	
-    Boolean existsByTelefonoMovil(String telefonoMovil);
+
+	Boolean existsByTelefonoMovil(String telefonoMovil);
 
     Boolean existsByEmail(String email);
 }

@@ -29,5 +29,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>,JpaSpec
 		   "Pedido p INNER JOIN p.pedidoItems b "
 		 + "WHERE p.cliente.nombre LIKE CONCAT('%',:cliente,'%') AND b.libro LIKE CONCAT('%',:libro,'%')")
 	List<Pedido> findByClienteAndLibro(@Param("libro") String libro,@Param("cliente") String cliente);
+	
+	Boolean existsByClienteId(Integer clienteId);
+	
 }
 

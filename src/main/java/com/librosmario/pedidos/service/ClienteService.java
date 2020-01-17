@@ -8,12 +8,16 @@ import org.springframework.stereotype.Service;
 
 import com.librosmario.pedidos.entity.Cliente;
 import com.librosmario.pedidos.repository.ClienteRepository;
+import com.librosmario.pedidos.repository.PedidoRepository;
 import com.librosmario.pedidos.repository.specifications.ClienteSpecifications;
 
 @Service
 public class ClienteService {
 	@Autowired
 	ClienteRepository repository;
+	
+	@Autowired
+	PedidoRepository pedidoRepository;
 	
 	public List<Cliente> findByAny(String parametro) {
 		Specification<Cliente> specification = Specification
@@ -25,5 +29,9 @@ public class ClienteService {
 				.or(ClienteSpecifications.telefonoMovilContains(parametro))
 				;
 		return repository.findAll(specification); 
+	}
+	
+	public boolean tienePedidos(Integer id) {
+		return pedidoRepository.existsByClienteId(id);
 	}
 }

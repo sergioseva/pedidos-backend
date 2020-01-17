@@ -7,10 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.librosmario.pedidos.entity.Cliente;
+import com.librosmario.pedidos.payload.UserIdentityAvailability;
 import com.librosmario.pedidos.repository.ClienteRepository;
 import com.librosmario.pedidos.service.ClienteService;
 
@@ -32,7 +35,6 @@ public class ClienteController {
     	
     	Resources<Cliente> resources = new Resources<Cliente>(clientes);
     	return ResponseEntity.ok(resources); 
-    	
     }
     
     @GetMapping( value = "/clientes/search/findByPhone")
@@ -50,6 +52,12 @@ public class ClienteController {
     	
     	List<Cliente> clientes=service.findByAny(parametro);
     	return ResponseEntity.ok(clientes); 
+    }
+    
+    @GetMapping("/clientes/checkPedidos/{id}")
+    public Boolean checkPedidos(@PathVariable(value="id") Integer clienteId ) {
+        
+        return service.tienePedidos(clienteId);
     }
 
 }
