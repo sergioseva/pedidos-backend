@@ -1,2 +1,0 @@
-2020-01-14 14:43:41.364  INFO BFNB14703 --- [  restartedMain] c.l.p.PedidosApplication                 : Starting PedidosApplication on BFNB14703 with PID 18232 (C:\sseva\libreria\pedidos-backend\target\classes started by sseva in C:\sseva\libreria\pedidos-backend)
-2020-01-14 14:43:41.365  INFO BFNB14703 --- [  restartedMain] c.l.p.PedidosApplication                 : No active profile set, falling back to default profiles: default

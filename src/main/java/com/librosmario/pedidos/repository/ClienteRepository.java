@@ -7,9 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import com.librosmario.pedidos.entity.Catalogo;
 import com.librosmario.pedidos.entity.Cliente;
-import com.librosmario.pedidos.entity.projections.PedidoProjection;
 
 @RepositoryRestResource
 @CrossOrigin(origins = "http://localhost:4200")
