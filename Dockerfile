@@ -1,5 +1,19 @@
-FROM openjdk:8-jdk-alpine
+FROM maven:3.5.2-jdk-8-alpine AS MAVEN_BUILD
+COPY pom.xml /build/
+COPY src /build/src/
+WORKDIR /build/
+RUN mvn package
+
+FROM openjdk:8-jre-alpine
 VOLUME /tmp
-COPY target/*.jar pedidos.jar
+WORKDIR /app
+COPY --from=MAVEN_BUILD /build/target/*.jar /app/pedidos.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/pedidos.jar"]
+ENTRYPOINT ["java", "-jar", "pedidos.jar"]
+
+
+#FROM openjdk:8-jdk-alpine
+#VOLUME /tmp
+#COPY target/*.jar pedidos.jar
+#EXPOSE 8080
+#ENTRYPOINT ["java","-jar","/pedidos.jar"]
