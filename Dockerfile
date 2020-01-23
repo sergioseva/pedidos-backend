@@ -9,7 +9,7 @@ VOLUME /tmp
 WORKDIR /app
 COPY --from=MAVEN_BUILD /build/target/*.jar /app/pedidos.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "pedidos.jar"]
+ENTRYPOINT ["java", "-jar", "pedidos.jar","--spring.config.location=file:///aplicaciones/pedidos/config/application.properties"]
 
 
 #FROM openjdk:8-jdk-alpine

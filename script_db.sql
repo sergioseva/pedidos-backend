@@ -23,6 +23,9 @@ SET
 `pi_ensucursal` = 1,
 `pi_retirado` = 1;
 
+INSERT INTO `librosmario`.`roles` (`id`, `name`) VALUES ('1', 'ROLE_ADMIN');
+INSERT INTO `librosmario`.`roles` (`id`, `name`) VALUES ('2', 'ROLE_USER');
+
 commit;
 
 CREATE TABLE `librosmario`.`bt_batchstatistics` (
