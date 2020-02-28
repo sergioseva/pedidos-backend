@@ -45,12 +45,15 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 		            throws SQLException, DataAccessException {  
 		              
 				int leidos = 0;
+				int escritos=0;
 				int errores = 0; 
 				for (StepExecution step : jobExecution.getStepExecutions()) {
 					leidos = leidos + step.getReadCount();
+					escritos= escritos + step.getWriteCount();
 					errores = errores + step.getSkipCount();
 				}
 				System.out.println("cant reads:"+ leidos);
+				System.out.println("cant escritos:"+ escritos);
 				System.out.println("cant errores:"+ errores);
 		        ps.setString(1,"ImportLuongo");  
 		        ps.setTimestamp(2, new Timestamp(jobExecution.getStartTime().getTime()) );  
