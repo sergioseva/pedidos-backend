@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.librosmario.pedidos.entity.Catalogo;
 
 @RepositoryRestResource(path="catalogos")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public interface CatalogoRepository extends JpaRepository<Catalogo, Integer>,JpaSpecificationExecutor<Catalogo> {
 
 
