@@ -69,7 +69,7 @@ public class PedidoItem {
 	 
 
 	  @JsonIgnore
-	  @ManyToMany(fetch=FetchType.LAZY)
+	  @ManyToMany(fetch = FetchType.EAGER)
 	  @JoinTable(
 				name="pdpi_pedido_distribuidora_item",
 				joinColumns=@JoinColumn(name="pdpi_pedido_item_pi"),
