@@ -14,7 +14,7 @@ import java.util.Optional;
  * Created by rajeevkumarsingh on 02/08/17.
  */
 @Repository
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 

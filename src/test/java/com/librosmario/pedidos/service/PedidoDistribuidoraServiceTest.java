@@ -1,6 +1,7 @@
 package com.librosmario.pedidos.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.librosmario.pedidos.controller.AuthController;
 import com.librosmario.pedidos.entity.Distribuidora;
+import com.librosmario.pedidos.entity.PedidoDistribuidora;
 import com.librosmario.pedidos.entity.PedidoItem;
 import com.librosmario.pedidos.repository.DistribuidoraRepository;
 import com.librosmario.pedidos.repository.PedidoDistribuidoraRepository;
@@ -58,8 +60,8 @@ public class PedidoDistribuidoraServiceTest {
 		
 		int cantItems=pedidoItemsRepository.findAll().size();
 		
-		boolean result=pedidoDistribuidoraService.confirmarPedidoADistribuidora(pil, distribuidora.get());
-		assertTrue(result);
+		PedidoDistribuidora result=pedidoDistribuidoraService.confirmarPedidoADistribuidora(pil, distribuidora.get());
+		assertNotNull(result);
 		
 		assertEquals(0,pedidoItemService.getAllPending().size());
 		

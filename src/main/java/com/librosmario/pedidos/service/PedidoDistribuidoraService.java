@@ -1,6 +1,7 @@
 package com.librosmario.pedidos.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,20 @@ public class PedidoDistribuidoraService {
 	@Autowired
 	PedidoDistribuidoraRepository pedidoADistribuidoraRepository;
 	
-	public boolean confirmarPedidoADistribuidora(List<PedidoItem> items,Distribuidora distribuidora) {
+	public PedidoDistribuidora confirmarPedidoADistribuidora(List<PedidoItem> items,Distribuidora distribuidora) {
 		PedidoDistribuidora pd=new PedidoDistribuidora();
 		pd.setDistribuidora(distribuidora);
 		pd.setFecha(LocalDateTime.now());
 		pd.setItems(items);
-		pedidoADistribuidoraRepository.save(pd);
 		
-		return pedidoItemService.marcarComoNoPendientes(items);
+		for (PedidoItem pi:items ) {
+			pi.getPedidosADistribuidoras().add(pd);
+		}
+
+		PedidoDistribuidora pdnew =pedidoADistribuidoraRepository.save(pd);
+		
+		pedidoItemService.marcarComoNoPendientes(items);
+		return pdnew;
 	}
 
 }

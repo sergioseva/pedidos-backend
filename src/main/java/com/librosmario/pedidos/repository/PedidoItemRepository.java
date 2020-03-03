@@ -10,7 +10,7 @@ import com.librosmario.pedidos.entity.PedidoItem;
 @RepositoryRestResource(path="librospedidos")
 public interface PedidoItemRepository extends JpaRepository<PedidoItem, Integer> {
 	
-	List<PedidoItem> findByPendienteTrue();
+	List<PedidoItem> findByPendienteTrueOrderByLibro();
 	List<PedidoItem> findByPedidoId(Integer pedidoId);
 
 }

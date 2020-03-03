@@ -2,6 +2,7 @@ package com.librosmario.pedidos.entity;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -74,7 +75,7 @@ public class PedidoItem {
 				joinColumns=@JoinColumn(name="pdpi_pedido_item_pi"),
 				inverseJoinColumns=@JoinColumn(name="pdpi_pedido_a_distribuidora_pd")
 				)	
-	  private List<PedidoDistribuidora> pedidosADistribuidoras;
+	  private List<PedidoDistribuidora> pedidosADistribuidoras= new ArrayList<PedidoDistribuidora>();
 	
 	  
 	public PedidoItem() {
@@ -101,6 +102,9 @@ public class PedidoItem {
 		this.pedido = pedido;
 	}
 
+	public void addPedidoDistribuidora(PedidoDistribuidora pd) {
+		
+	}
 
 
 

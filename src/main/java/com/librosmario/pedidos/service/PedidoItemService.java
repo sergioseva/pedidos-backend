@@ -15,7 +15,7 @@ public class PedidoItemService {
 	PedidoItemRepository repository;
 	
 	public List<PedidoItem> getAllPending(){
-		return repository.findByPendienteTrue();
+		return repository.findByPendienteTrueOrderByLibro();
 	}
 	
 	public boolean marcarComoNoPendientes(List<PedidoItem> items) {

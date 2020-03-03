@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import com.librosmario.pedidos.entity.Distribuidora;
 import com.librosmario.pedidos.entity.PedidoDistribuidora;
 
-@RepositoryRestResource(path="pedidosadistribuidora")
+@RepositoryRestResource(path="pedidosdistribuidora")
 public interface PedidoDistribuidoraRepository extends JpaRepository<PedidoDistribuidora, Integer> {
 
 }

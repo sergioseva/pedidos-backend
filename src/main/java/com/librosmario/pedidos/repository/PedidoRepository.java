@@ -14,7 +14,7 @@ import com.librosmario.pedidos.entity.Pedido;
 import com.librosmario.pedidos.entity.projections.PedidoProjection;
 
 @RepositoryRestResource(path="pedidos",excerptProjection=PedidoProjection.class)
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public interface PedidoRepository extends JpaRepository<Pedido, Integer>,JpaSpecificationExecutor<Pedido> {
 
 
