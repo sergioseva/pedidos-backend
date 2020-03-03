@@ -28,7 +28,7 @@ public class PedidoItemRepositoryTest {
 	@Test
 	public void shouldReturnPendings() {
 		
-		List<PedidoItem> pitems=repository.findByPendienteTrue();
+		List<PedidoItem> pitems=repository.findByPendienteTrueOrderByLibro();
 		assertEquals(3,pitems.size());
 		
 	}

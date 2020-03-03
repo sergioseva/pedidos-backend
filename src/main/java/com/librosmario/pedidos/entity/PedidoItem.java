@@ -59,7 +59,7 @@ public class PedidoItem {
 	  private Distribuidora pedidoAeditorial;
 	  
 	  @Column(name="pi_pendiente")
-	  private boolean pendiente;
+	  private boolean pendiente=true;
 	  @Column(name="pi_ensucursal")
 	  private boolean enSucursal=false;
 	  @Column(name="pi_retirado")
