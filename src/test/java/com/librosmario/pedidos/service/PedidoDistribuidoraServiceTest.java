@@ -56,9 +56,12 @@ public class PedidoDistribuidoraServiceTest {
 		assertTrue(distribuidora.isPresent());
 		
 		List<PedidoItem> pil=pedidoItemService.getAllPending();
+		//blanqueo el pedido de los pedidoItems para simular que vienen del front end;
+		pil.forEach((pi) -> pi.setPedido(null));
 		System.out.println("pendings count:"+pil.size());
 		
 		int cantItems=pedidoItemsRepository.findAll().size();
+		
 		
 		PedidoDistribuidora result=pedidoDistribuidoraService.confirmarPedidoADistribuidora(pil, distribuidora.get());
 		assertNotNull(result);
@@ -69,6 +72,8 @@ public class PedidoDistribuidoraServiceTest {
 		//verifico que no haya aumentado la cantidad de pedidoItems
 
 		assertEquals(cantItems,pedidoItemsRepository.findAll().size());
+		//verifico que no me grabó el pedido en null
+		assertNotNull(pedidoItemsRepository.findAll().get(0).getPedido());
 		
 	}
 

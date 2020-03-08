@@ -36,7 +36,7 @@ public class PedidoDistribuidora {
 	 @Column(name="pd_pedido_realizado")
 	 boolean realizado;
 	 
-	  @ManyToMany()
+	  @ManyToMany(cascade = {})
 	  @JoinTable(
 				name="pdpi_pedido_distribuidora_item",
 				inverseJoinColumns=@JoinColumn(name="pdpi_pedido_item_pi"),

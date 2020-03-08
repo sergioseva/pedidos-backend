@@ -31,7 +31,7 @@ public class PedidoItem {
 	  
 	  @JsonIgnore
 	  @ManyToOne(fetch = FetchType.LAZY)
-	  @JoinColumn(name="pi_pedido_pe") 
+	  @JoinColumn(name="pi_pedido_pe",updatable = false) 
 	  private Pedido pedido;
 	  
 //	  @JsonIgnore
