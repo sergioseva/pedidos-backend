@@ -26,10 +26,12 @@ public class PedidoService {
 	Specification<Pedido> specification;
 	
 	public Pedido createPedido(Pedido pedido){
-		repository.save(pedido);
 		pedido.getPedidoItems().forEach( (PedidoItem pi) -> 
-											{pi.setPedido(pedido);
-											pedidoItemRepository.save(pi);});
+		{pi.setPedido(pedido);
+		});
+		
+		repository.save(pedido);
+
 		return pedido;
 		
 	}
