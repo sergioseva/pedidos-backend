@@ -1,21 +1,31 @@
 pipeline {
     agent any
+
+    tools {
+        maven 'maven'
+        jdk 'jdk'
+        git 'git'
+    }
+
     stages {
-        stage ('Build Servlet Project') {
+        // stage ('Build') {
+        //   steps {
+        //     git branch: "experiment", url: 'https://github.com/koraytugay/groovyship.git'
+        //     sh 'mvn clean install'
+        //   }
+        //   post {
+        //     success {
+        //       junit 'target/surefire-reports/**/*.xml'
+        //     }
+        //   }
+        // }
+
+        stage('Policy') {
             steps {
-                /*For windows machine */
-              // bat  'mvn clean package'
- 
-                /*For Mac & Linux machine */
-                sh  'mvn clean package'
-            }
- 
-            post{
-                success{
-                    echo 'Now Archiving ....'
- 
-                    archiveArtifacts artifacts : '**/*.war'
-                }
+                nexusPolicyEvaluation advancedProperties: '', enableDebugLogging: true,
+                    failBuildOnNetworkError: false, iqApplication: selectedApplication('jcava-test-app2'),
+                    iqScanPatterns: [[scanPattern: 'container:jboss/keycloak:7.0.0']], iqStage: 'build',
+                    jobCredentialsId: ''
             }
         }
     }
