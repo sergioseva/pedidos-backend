@@ -1,7 +1,6 @@
 package com.librosmario.pedidos.batch;
 
-import javax.sql.DataSource;
-
+import com.librosmario.pedidos.entity.Catalogo;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -18,13 +17,14 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
-import com.librosmario.pedidos.entity.Catalogo;
+import javax.sql.DataSource;
 
-//@Configuration
+@Configuration
 @EnableBatchProcessing
-public class csvLuongoReaderSetup {
+public class csvLuongoNewReaderSetup {
 	
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -38,35 +38,26 @@ public class csvLuongoReaderSetup {
     @Value("${pedidos.luongo.path}")
     private String filePath;
     
-
-	
 	@Bean
-	public FlatFileItemReader < CatalogoCSV > csvCatalogoReader() {
-	    FlatFileItemReader < CatalogoCSV > reader = new FlatFileItemReader < > ();
+	public FlatFileItemReader < NewCatalogoCSV > csvCatalogoReader() {
+	    FlatFileItemReader < NewCatalogoCSV > reader = new FlatFileItemReader<>();
 	    reader.setResource(new FileSystemResource(filePath + "luongo.csv"));
-	    reader.setLineMapper(new DefaultLineMapper <CatalogoCSV> () {
+	    reader.setLineMapper(new DefaultLineMapper <NewCatalogoCSV> () {
 	        {
             setLineTokenizer(new DelimitedLineTokenizer(";") {
                 {
-                    setNames("CODIGO",
+					setNames("CODIGO",
+                            "DESCR",
                             "AUTOR",
-                            "DESC",
-                            "EDI",
+                            "EDITORIAL",
+                            "ISBN",
                             "PRECIO",
-                            "BARRA",
-                            "CLASE",
-                            "PEDIDO",
-                            "TEMA",
-                            "OBSERVA",
-                            "PSTOCK",
-                            "MARCA",
-                            "RUBRO",
-                            "VIGENTE");
+                            "CLASE");
                 }
             });
-            setFieldSetMapper(new BeanWrapperFieldSetMapper < CatalogoCSV > () {
+            setFieldSetMapper(new BeanWrapperFieldSetMapper < NewCatalogoCSV > () {
                 {
-                    setTargetType(CatalogoCSV.class);
+                    setTargetType(NewCatalogoCSV.class);
                 }
             });
         }
@@ -75,8 +66,8 @@ public class csvLuongoReaderSetup {
 }
 	
 	@Bean
-	ItemProcessor<CatalogoCSV, Catalogo> csvCatalogoProcessor() {
-		return new CatalogoProcessor();
+	ItemProcessor<NewCatalogoCSV, Catalogo> csvCatalogoProcessor() {
+		return new NewCatalogoProcessor();
 	}
 
 	@Bean
@@ -93,7 +84,7 @@ public class csvLuongoReaderSetup {
 	public Step csvFileToDatabaseStep() {
 		return stepBuilderFactory.get("csvFileToDatabaseStep")
 				.allowStartIfComplete(true)
-				.<CatalogoCSV, Catalogo>chunk(100)
+				.<NewCatalogoCSV, Catalogo>chunk(100)
 				.reader(csvCatalogoReader())
 				.processor(csvCatalogoProcessor())
 				.writer(csvCatalogoWriter())
