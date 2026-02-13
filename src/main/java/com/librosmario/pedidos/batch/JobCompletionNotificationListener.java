@@ -20,8 +20,11 @@ import org.apache.logging.log4j.Logger;
 @Component
 public class JobCompletionNotificationListener extends JobExecutionListenerSupport{
 
+	private static final String CREADOR_STAGING = "luongo_bulk_new";
+	private static final String CREADOR_FINAL = "luongo_bulk";
+
 	private final JdbcTemplate jdbcTemplate;
-	
+
 	private static final Logger logger = LogManager.getLogger(JobCompletionNotificationListener.class);
 
 	@Autowired
@@ -29,24 +32,30 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	
-	
+	@Override
+	public void beforeJob(JobExecution jobExecution) {
+		// Clean up any leftover staging records from a previous failed import
+		logger.info("Cleaning up staging records before import");
+		jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_STAGING);
+	}
+
+	@Override
 	public void afterJob(JobExecution jobExecution) {
-		
-		logger.info("Job finished");
+
+		logger.info("Job finished with status: " + jobExecution.getStatus());
 
 		//save statistics
-		String query="INSERT INTO `librosmario`.`bt_batchstatistics` " + 
-				"(`bt_proceso`,`bt_starttime`,`bt_endtime`,`bt_registros`,`bt_errores`) " + 
+		String query="INSERT INTO `librosmario`.`bt_batchstatistics` " +
+				"(`bt_proceso`,`bt_starttime`,`bt_endtime`,`bt_registros`,`bt_errores`) " +
 				"VALUES (?,?,?,?,?)";
-		jdbcTemplate.execute(query,new PreparedStatementCallback<Boolean>(){  
-		    @Override  
-		    public Boolean doInPreparedStatement(PreparedStatement ps)  
-		            throws SQLException, DataAccessException {  
-		              
+		jdbcTemplate.execute(query,new PreparedStatementCallback<Boolean>(){
+		    @Override
+		    public Boolean doInPreparedStatement(PreparedStatement ps)
+		            throws SQLException, DataAccessException {
+
 				int leidos = 0;
 				int escritos=0;
-				int errores = 0; 
+				int errores = 0;
 				for (StepExecution step : jobExecution.getStepExecutions()) {
 					leidos = leidos + step.getReadCount();
 					escritos= escritos + step.getWriteCount();
@@ -55,23 +64,25 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 				System.out.println("cant reads:"+ leidos);
 				System.out.println("cant escritos:"+ escritos);
 				System.out.println("cant errores:"+ errores);
-		        ps.setString(1,"ImportLuongo");  
-		        ps.setTimestamp(2, new Timestamp(jobExecution.getStartTime().getTime()) );  
+		        ps.setString(1,"ImportLuongo");
+		        ps.setTimestamp(2, new Timestamp(jobExecution.getStartTime().getTime()) );
 		        ps.setTimestamp(3, new Timestamp(jobExecution.getEndTime().getTime()));
 		        ps.setInt(4, leidos);
 		        ps.setInt(5, errores);
-		        return ps.execute();  
-		    }  
+		        return ps.execute();
+		    }
 		    });
-		
-				
-				
+
 		if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
+			logger.info("Import successful, replacing old records");
+			// Delete old records and promote staging records
+			jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_FINAL);
+			jdbcTemplate.update("UPDATE cg_catalogo SET cg_creador=? WHERE cg_creador=?", CREADOR_FINAL, CREADOR_STAGING);
 			System.out.println("============ JOB FINISHED ============ ");
-			//remove old records
-			query=" delete from librosmario.cg_catalogo WHERE cg_creador='luongo' and cg_inputdate < ? "; 
-			jdbcTemplate.update(query,new Timestamp(jobExecution.getStartTime().getTime()));
-			
+		} else {
+			logger.info("Import failed, removing staging records");
+			// Clean up partial import
+			jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_STAGING);
 		}
 	}
 }

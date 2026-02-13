@@ -16,7 +16,6 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 
@@ -35,15 +34,10 @@ public class csvLuongoReaderSetup {
     @Autowired
     public DataSource dataSource;
     
-    @Value("${pedidos.luongo.path}")
-    private String filePath;
-    
-
-	
 	@Bean
 	public FlatFileItemReader < CatalogoCSV > csvCatalogoReader() {
 	    FlatFileItemReader < CatalogoCSV > reader = new FlatFileItemReader < > ();
-	    reader.setResource(new FileSystemResource(filePath + "luongo.csv"));
+	    reader.setResource(new FileSystemResource(System.getProperty("java.io.tmpdir") + "/luongo.csv"));
 	    reader.setLineMapper(new DefaultLineMapper <CatalogoCSV> () {
 	        {
             setLineTokenizer(new DelimitedLineTokenizer(";") {
@@ -84,7 +78,7 @@ public class csvLuongoReaderSetup {
 		 JdbcBatchItemWriter<Catalogo> csvCatalogoWriter = new JdbcBatchItemWriter<>();
 		 csvCatalogoWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
 		 csvCatalogoWriter.setSql("INSERT INTO cg_catalogo (cg_codigo_luongo, cg_autor, cg_descripcion,cg_precio,cg_editorial,cg_tema,cg_isbn,cg_observaciones,cg_creador,cg_inputdate)"
-		 		+ " VALUES (:codigoLuongo, :autor, :descripcion, :precio, :editorial, :tema , :isbn, :observaciones, 'luongo', now() )");
+		 		+ " VALUES (:codigoLuongo, :autor, :descripcion, :precio, :editorial, :tema , :isbn, :observaciones, 'luongo_bulk_new', now() )");
 		 csvCatalogoWriter.setDataSource(dataSource);
 	     return csvCatalogoWriter;
 	}

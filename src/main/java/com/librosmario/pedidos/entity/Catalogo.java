@@ -17,7 +17,7 @@ public class Catalogo {
 	Integer id;
 
 	@Column(name="cg_codigo_luongo")
-	Integer codigoLuongo;
+	String codigoLuongo;
 	@Column(name="cg_autor")
 	String autor;
 	@Column(name="cg_descripcion")
@@ -42,7 +42,7 @@ public class Catalogo {
 	public Catalogo() {
 
 	}
-	public Catalogo(Integer codigoLuongo, String autor, String descripcion, Double precio, String editorial,
+	public Catalogo(String codigoLuongo, String autor, String descripcion, Double precio, String editorial,
 			String tema, String isbn, String observaciones) {
 		this.codigoLuongo = codigoLuongo;
 		this.autor = autor;
@@ -69,11 +69,11 @@ public class Catalogo {
 		this.id = id;
 	}
 
-	public Integer getCodigoLuongo() {
+	public String getCodigoLuongo() {
 		return codigoLuongo;
 	}
 
-	public void setCodigoLuongo(Integer codigoLuongo) {
+	public void setCodigoLuongo(String codigoLuongo) {
 		this.codigoLuongo = codigoLuongo;
 	}
 
