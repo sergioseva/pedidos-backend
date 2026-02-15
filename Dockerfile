@@ -4,7 +4,7 @@ COPY src /build/src/
 WORKDIR /build/
 RUN mvn package
 
-FROM openjdk:8-jre-alpine
+FROM eclipse-temurin:8-jre
 VOLUME /tmp
 WORKDIR /app
 COPY --from=MAVEN_BUILD /build/target/*.jar /app/pedidos.jar
