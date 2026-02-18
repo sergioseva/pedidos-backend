@@ -6,8 +6,8 @@ import java.sql.Timestamp;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Component
-public class JobCompletionNotificationListener extends JobExecutionListenerSupport{
+public class JobCompletionNotificationListener implements JobExecutionListener {
 
 	private static final String CREADOR_STAGING = "luongo_bulk_new";
 	private static final String CREADOR_FINAL = "luongo_bulk";
@@ -53,9 +53,9 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 		    public Boolean doInPreparedStatement(PreparedStatement ps)
 		            throws SQLException, DataAccessException {
 
-				int leidos = 0;
-				int escritos=0;
-				int errores = 0;
+				long leidos = 0;
+				long escritos=0;
+				long errores = 0;
 				for (StepExecution step : jobExecution.getStepExecutions()) {
 					leidos = leidos + step.getReadCount();
 					escritos= escritos + step.getWriteCount();
@@ -65,10 +65,10 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 				System.out.println("cant escritos:"+ escritos);
 				System.out.println("cant errores:"+ errores);
 		        ps.setString(1,"ImportLuongo");
-		        ps.setTimestamp(2, new Timestamp(jobExecution.getStartTime().getTime()) );
-		        ps.setTimestamp(3, new Timestamp(jobExecution.getEndTime().getTime()));
-		        ps.setInt(4, leidos);
-		        ps.setInt(5, errores);
+		        ps.setTimestamp(2, Timestamp.valueOf(jobExecution.getStartTime()));
+		        ps.setTimestamp(3, Timestamp.valueOf(jobExecution.getEndTime()));
+		        ps.setLong(4, leidos);
+		        ps.setLong(5, errores);
 		        return ps.execute();
 		    }
 		    });

@@ -1,5 +1,5 @@
 insert into users(id,name,username, email, password) values (1,'test','test','test@test.com','12345678');
-insert into roles (id,name) values(1,'ADMIN');
+insert into roles (id,name) values(1,'ROLE_ADMIN');
 insert into user_roles(user_id,role_id) values (1,1); 
 
 insert into ed_editorial(ed_editorial_k,ed_descripcion) values (1,'Distribuidora test');
@@ -20,8 +20,15 @@ insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_l
 
 
 insert into pe_pedido(pe_pedido_k,pe_cliente_cl,pe_adomicilio) values (2,2,false);
-insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_libro,pi_pendiente,pi_editorial_ed,pi_ensucursal,pi_retirado) 
+insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_libro,pi_pendiente,pi_editorial_ed,pi_ensucursal,pi_retirado)
 		values (3,1,1,'libro3',true,1,false,false);
-insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_libro,pi_pendiente,pi_editorial_ed,pi_ensucursal,pi_retirado) 
+insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_libro,pi_pendiente,pi_editorial_ed,pi_ensucursal,pi_retirado)
 		values (4,1,1,'libro4',true,1,false,false);
-		
+
+-- Reset identity counters after explicit ID inserts (required for H2 2.x)
+ALTER TABLE users ALTER COLUMN id RESTART WITH 10;
+ALTER TABLE roles ALTER COLUMN id RESTART WITH 10;
+ALTER TABLE ed_editorial ALTER COLUMN ed_editorial_k RESTART WITH 10;
+ALTER TABLE cl_cliente ALTER COLUMN cl_cliente_k RESTART WITH 10;
+ALTER TABLE pe_pedido ALTER COLUMN pe_pedido_k RESTART WITH 10;
+ALTER TABLE pi_pedido_item ALTER COLUMN pi_pedido_item_k RESTART WITH 10;

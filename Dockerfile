@@ -1,19 +1,12 @@
-FROM maven:3.5.2-jdk-8-alpine AS MAVEN_BUILD
+FROM maven:3.9-eclipse-temurin-17-alpine AS maven_build
 COPY pom.xml /build/
 COPY src /build/src/
 WORKDIR /build/
-RUN mvn package
+RUN mvn package -DskipTests
 
-FROM eclipse-temurin:8-jre
+FROM eclipse-temurin:17-jre-alpine
 VOLUME /tmp
 WORKDIR /app
-COPY --from=MAVEN_BUILD /build/target/*.jar /app/pedidos.jar
+COPY --from=maven_build /build/target/*.jar /app/pedidos.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "pedidos.jar"]
-
-
-#FROM openjdk:8-jdk-alpine
-#VOLUME /tmp
-#COPY target/*.jar pedidos.jar
-#EXPOSE 8080
-#ENTRYPOINT ["java","-jar","/pedidos.jar"]

@@ -4,10 +4,10 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -15,30 +15,32 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.librosmario.pedidos.entity.Catalogo;
 
 //@Configuration
-@EnableBatchProcessing
 public class csvLuongoReaderSetup {
-	
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
 
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
+	private final JobRepository jobRepository;
+	private final PlatformTransactionManager transactionManager;
+	private final DataSource dataSource;
 
-    @Autowired
-    public DataSource dataSource;
-    
+	public csvLuongoReaderSetup(JobRepository jobRepository,
+								PlatformTransactionManager transactionManager,
+								DataSource dataSource) {
+		this.jobRepository = jobRepository;
+		this.transactionManager = transactionManager;
+		this.dataSource = dataSource;
+	}
+
 	@Bean
-	public FlatFileItemReader < CatalogoCSV > csvCatalogoReader() {
-	    FlatFileItemReader < CatalogoCSV > reader = new FlatFileItemReader < > ();
+	public FlatFileItemReader<CatalogoCSV> csvCatalogoReader() {
+	    FlatFileItemReader<CatalogoCSV> reader = new FlatFileItemReader<>();
 	    reader.setResource(new FileSystemResource(System.getProperty("java.io.tmpdir") + "/luongo.csv"));
-	    reader.setLineMapper(new DefaultLineMapper <CatalogoCSV> () {
+	    reader.setLineMapper(new DefaultLineMapper<CatalogoCSV>() {
 	        {
             setLineTokenizer(new DelimitedLineTokenizer(";") {
                 {
@@ -58,7 +60,7 @@ public class csvLuongoReaderSetup {
                             "VIGENTE");
                 }
             });
-            setFieldSetMapper(new BeanWrapperFieldSetMapper < CatalogoCSV > () {
+            setFieldSetMapper(new BeanWrapperFieldSetMapper<CatalogoCSV>() {
                 {
                     setTargetType(CatalogoCSV.class);
                 }
@@ -67,7 +69,7 @@ public class csvLuongoReaderSetup {
     });
     return reader;
 }
-	
+
 	@Bean
 	ItemProcessor<CatalogoCSV, Catalogo> csvCatalogoProcessor() {
 		return new CatalogoProcessor();
@@ -85,9 +87,9 @@ public class csvLuongoReaderSetup {
 
 	@Bean
 	public Step csvFileToDatabaseStep() {
-		return stepBuilderFactory.get("csvFileToDatabaseStep")
+		return new StepBuilder("csvFileToDatabaseStep", jobRepository)
 				.allowStartIfComplete(true)
-				.<CatalogoCSV, Catalogo>chunk(100)
+				.<CatalogoCSV, Catalogo>chunk(100, transactionManager)
 				.reader(csvCatalogoReader())
 				.processor(csvCatalogoProcessor())
 				.writer(csvCatalogoWriter())
@@ -95,24 +97,21 @@ public class csvLuongoReaderSetup {
 				.skipLimit(100)
 				.skip(Exception.class)
 				.listener(new ImportSkipListener())
-				//.listener(listener())
 				.build();
 	}
-	
+
 	@Bean
 	public Job readCSVFilesJob(JobCompletionNotificationListener listener) {
-	    return jobBuilderFactory
-	            .get("readCSVFilesJob")
+	    return new JobBuilder("readCSVFilesJob", jobRepository)
 	            .incrementer(new RunIdIncrementer())
 	            .listener(listener)
 	            .start(csvFileToDatabaseStep())
 	            .build();
 	}
-	
+
 	@Bean
 	public ItemCountListener listener() {
 	    return new ItemCountListener();
 	}
-
 
 }

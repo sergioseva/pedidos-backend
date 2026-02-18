@@ -1,8 +1,8 @@
 package com.librosmario.pedidos.entity;
 
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
-@javax.persistence.metamodel.StaticMetamodel(Cliente.class)
+@jakarta.persistence.metamodel.StaticMetamodel(Cliente.class)
 
 public class Cliente_ {
 	public static volatile SingularAttribute<Cliente,Integer> id;

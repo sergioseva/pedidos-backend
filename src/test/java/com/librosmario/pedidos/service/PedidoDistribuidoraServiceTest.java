@@ -1,21 +1,17 @@
 package com.librosmario.pedidos.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import com.librosmario.pedidos.controller.AuthController;
 import com.librosmario.pedidos.entity.Distribuidora;
 import com.librosmario.pedidos.entity.PedidoDistribuidora;
 import com.librosmario.pedidos.entity.PedidoItem;
@@ -26,7 +22,6 @@ import com.librosmario.pedidos.repository.PedidoItemRepository;
 
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class PedidoDistribuidoraServiceTest {
 	
@@ -45,7 +40,7 @@ public class PedidoDistribuidoraServiceTest {
 	@Autowired
 	PedidoItemRepository pedidoItemsRepository;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 	}
 

@@ -1,7 +1,7 @@
 package com.librosmario.pedidos.entity.user;
 
 import org.hibernate.annotations.NaturalId;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Created by rajeevkumarsingh on 01/08/17.

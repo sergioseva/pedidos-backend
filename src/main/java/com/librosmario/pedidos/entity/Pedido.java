@@ -1,23 +1,18 @@
 package com.librosmario.pedidos.entity;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import org.springframework.data.rest.core.annotation.RestResource;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name="pe_pedido")
@@ -27,7 +22,7 @@ public class Pedido {
 	@Column(name="pe_pedido_k")
     private int id;
 	
-	@OneToOne()
+	@ManyToOne()
 	@JoinColumn(name="pe_cliente_cl")
 	//@RestResource(path = "libraryAddress", rel="address")
     private Cliente cliente;

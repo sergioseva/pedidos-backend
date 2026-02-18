@@ -3,13 +3,12 @@ package com.librosmario.pedidos.repository.specifications;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.ListJoin;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.ListJoin;
+import jakarta.persistence.criteria.Predicate;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.librosmario.pedidos.entity.Catalogo;
 import com.librosmario.pedidos.entity.Cliente;
 import com.librosmario.pedidos.entity.Cliente_;
 import com.librosmario.pedidos.entity.Pedido;

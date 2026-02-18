@@ -1,20 +1,18 @@
 package com.librosmario.pedidos.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.librosmario.pedidos.entity.Cliente;
 import com.librosmario.pedidos.entity.Pedido;
@@ -24,7 +22,6 @@ import com.librosmario.pedidos.repository.PedidoItemRepository;
 import com.librosmario.pedidos.repository.PedidoRepository;
 import com.librosmario.pedidos.service.PedidoService;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class PedidoServiceTest {
 	

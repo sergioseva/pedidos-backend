@@ -1,26 +1,22 @@
 package com.librosmario.pedidos.test.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.librosmario.pedidos.entity.Cliente;
 import com.librosmario.pedidos.entity.Pedido;
 import com.librosmario.pedidos.entity.PedidoItem;
 import com.librosmario.pedidos.repository.ClienteRepository;
-import com.librosmario.pedidos.repository.PedidoItemRepository;
 import com.librosmario.pedidos.repository.PedidoRepository;
-@RunWith(SpringRunner.class)
 @DataJpaTest
 public class PedidoRepositoryTest {
 

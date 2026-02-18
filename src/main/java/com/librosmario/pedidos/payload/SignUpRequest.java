@@ -1,6 +1,6 @@
 package com.librosmario.pedidos.payload;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 import com.librosmario.pedidos.entity.user.RoleName;
 

@@ -2,10 +2,10 @@ package com.librosmario.pedidos.entity;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.metamodel.ListAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.ListAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
-@javax.persistence.metamodel.StaticMetamodel(PedidoItem.class)
+@jakarta.persistence.metamodel.StaticMetamodel(PedidoItem.class)
 
 public class PedidoItem_ {
 

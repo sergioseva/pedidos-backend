@@ -12,9 +12,9 @@ public class ItemCountListener implements ChunkListener {
     @Override
     public void afterChunk(ChunkContext context) {
          
-        int leidosCount = context.getStepContext().getStepExecution().getReadCount();
-        int escritosCount = context.getStepContext().getStepExecution().getWriteCount();
-        int salteadosCount = context.getStepContext().getStepExecution().getSkipCount();
+        long leidosCount = context.getStepContext().getStepExecution().getReadCount();
+        long escritosCount = context.getStepContext().getStepExecution().getWriteCount();
+        long salteadosCount = context.getStepContext().getStepExecution().getSkipCount();
         System.out.println("leidosCount: " + leidosCount);
         System.out.println("escritosCount: " + escritosCount);
         System.out.println("salteadosCount: " + salteadosCount);
