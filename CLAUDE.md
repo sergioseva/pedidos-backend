@@ -4,32 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bookstore order management backend (pedidos) for "Libros Mario". Spring Boot 2.1.6 REST API with JWT authentication, built on Java 8 and Maven.
+Bookstore order management backend (pedidos) for "Libros Mario". Spring Boot 3.3.5 REST API with JWT authentication, built on Java 17 and Gradle.
 
 ## Build & Run Commands
 
 ```bash
 # Build (skipping tests)
-./mvnw clean package -DskipTests
+./gradlew clean build -x test
 
 # Build with tests
-./mvnw clean package
+./gradlew clean build
 
 # Run locally (requires MySQL, see Local Development below)
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+./gradlew bootRun --args='--spring.profiles.active=local'
 
 # Run tests (uses H2 in-memory, no MySQL needed)
-./mvnw test
+./gradlew test
 
 # Run a single test class
-./mvnw test -Dtest=PedidoServiceTest
+./gradlew test --tests "com.librosmario.pedidos.service.PedidoServiceTest"
 
 # Docker build & run
 docker build -t pedidos .
 docker container run --rm -p 8080:8080 pedidos
 ```
 
-The Maven wrapper (`mvnw`) is included. No global Maven install required.
+The Gradle wrapper (`gradlew`) is included. No global Gradle install required.
 
 ## Local Development
 
@@ -126,4 +126,4 @@ Tests use H2 in-memory database (configured in `src/test/resources/application.p
 
 ## Deployment
 
-Multi-stage Docker build: Maven 3.5.2 + JDK 8 for build, OpenJDK 8 JRE Alpine for runtime. The container loads external config from `/aplicaciones/pedidos/config/application.properties`. Jenkins pipeline defined in `Jenkinsfile`.
+Multi-stage Docker build: Eclipse Temurin JDK 17 for build (Gradle wrapper downloads Gradle), Eclipse Temurin JRE 17 Alpine for runtime. The container loads external config from `/aplicaciones/pedidos/config/application.properties`. Jenkins pipeline defined in `Jenkinsfile`.

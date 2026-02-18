@@ -16,7 +16,7 @@ docker run -d \
 ### 2. Ejecutar la aplicacion con el perfil local
 
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
 La API estara disponible en http://localhost:8080
@@ -33,7 +33,7 @@ INSERT INTO roles (id, name) VALUES (2, 'ROLE_USER');
 ## Build y deploy con Docker
 
 ```bash
-mvn clean install
+./gradlew clean build
 docker build -t pedidos .
 docker container run --rm -p 8080:8080 pedidos
 ```
