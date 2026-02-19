@@ -1,7 +1,6 @@
 package com.librosmario.pedidos.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.librosmario.pedidos.entity.Cliente;
 import com.librosmario.pedidos.entity.Pedido;
@@ -38,6 +38,7 @@ public class PedidoServiceTest {
 	ClienteRepository clienteRepository;
 	
 	@Test
+	@Transactional
 	public void shouldCreatePedidoWithItems() {
 		Pedido p= new Pedido();
 		Cliente c= clienteRepository.findById(1).orElseThrow(IllegalArgumentException::new);
@@ -52,10 +53,10 @@ public class PedidoServiceTest {
 		Optional<Pedido> precovered=repository.findById(p.getId());
 		
 		assertTrue(precovered.isPresent());
-		//assertEquals(2,precovered.get().getPedidoItems().size());
-		//assertEquals("libro1",precovered.get().getPedidoItems().get(0).getLibro());
-		//assertEquals("libro2",precovered.get().getPedidoItems().get(1).getLibro());
-		
+		assertThat(precovered.get().getPedidoItems()).hasSize(2);
+		assertThat(precovered.get().getPedidoItems().get(0).getLibro()).isEqualTo("libro1");
+		assertThat(precovered.get().getPedidoItems().get(1).getLibro()).isEqualTo("libro2");
+
 		List<PedidoItem> listPi= pedidoItemRepository.findByPedidoId(precovered.get().getId());
 		assertThat(listPi).hasSize(2);
 		

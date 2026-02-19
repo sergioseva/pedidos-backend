@@ -61,9 +61,9 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
 					escritos= escritos + step.getWriteCount();
 					errores = errores + step.getSkipCount();
 				}
-				System.out.println("cant reads:"+ leidos);
-				System.out.println("cant escritos:"+ escritos);
-				System.out.println("cant errores:"+ errores);
+				logger.info("Read count: {}", leidos);
+				logger.info("Write count: {}", escritos);
+				logger.info("Error count: {}", errores);
 		        ps.setString(1,"ImportLuongo");
 		        ps.setTimestamp(2, Timestamp.valueOf(jobExecution.getStartTime()));
 		        ps.setTimestamp(3, Timestamp.valueOf(jobExecution.getEndTime()));
@@ -78,7 +78,7 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
 			// Delete old records and promote staging records
 			jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_FINAL);
 			jdbcTemplate.update("UPDATE cg_catalogo SET cg_creador=? WHERE cg_creador=?", CREADOR_FINAL, CREADOR_STAGING);
-			System.out.println("============ JOB FINISHED ============ ");
+			logger.info("============ JOB FINISHED ============");
 		} else {
 			logger.info("Import failed, removing staging records");
 			// Clean up partial import

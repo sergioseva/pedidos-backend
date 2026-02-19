@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import com.librosmario.pedidos.repository.PedidoItemRepository;
 
 @Service
 public class PedidoDistribuidoraService {
+
+	private static final Logger logger = LogManager.getLogger(PedidoDistribuidoraService.class);
 
 	@Autowired
 	PedidoItemService pedidoItemService;
@@ -41,8 +45,10 @@ public class PedidoDistribuidoraService {
 		}
 
 		PedidoDistribuidora pdnew =pedidoADistribuidoraRepository.save(pd);
+		logger.info("Pedido a distribuidora '{}' confirmed with {} items (IDs: {})", distribuidora.getDescripcion(), managedItems.size(), itemIds);
 
 		pedidoItemService.marcarComoNoPendientes(managedItems);
+		logger.info("Marked {} items as no-pendientes", managedItems.size());
 		return pdnew;
 	}
 

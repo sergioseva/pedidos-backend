@@ -18,8 +18,8 @@ public class PedidoItemService {
 		return repository.findByPendienteTrueOrderByLibro();
 	}
 	
-	public boolean marcarComoNoPendientes(List<PedidoItem> items) {
+	public void marcarComoNoPendientes(List<PedidoItem> items) {
 		items.forEach((pi) -> pi.setPendiente(false));
-		return repository.saveAll(items) != null;
+        repository.saveAll(items);
 	}
 }

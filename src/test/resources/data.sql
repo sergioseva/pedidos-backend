@@ -1,6 +1,8 @@
-insert into users(id,name,username, email, password) values (1,'test','test','test@test.com','12345678');
+insert into users(id,name,username, email, password) values (1,'test','test','test@test.com','$2a$10$jkSu5R0yZPteOd9yY5J/p.gFnr1XVGIGmisaE.6MhNE84Bcu7Woc.');
 insert into roles (id,name) values(1,'ROLE_ADMIN');
-insert into user_roles(user_id,role_id) values (1,1); 
+insert into roles (id,name) values(2,'ROLE_USER');
+insert into user_roles(user_id,role_id) values (1,1);
+insert into user_roles(user_id,role_id) values (1,2);
 
 insert into ed_editorial(ed_editorial_k,ed_descripcion) values (1,'Distribuidora test');
 insert into ed_editorial(ed_editorial_k,ed_descripcion) values (2,'Distribuidora test 2');

@@ -82,6 +82,7 @@ public class CatalogoController {
     @PostMapping( value = "/catalogos/import")
     public  ResponseEntity<Boolean> importCatalogo(@RequestParam("file") MultipartFile file) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 
+    	logger.info("Import catalogo request: filename='{}', size={} bytes", file.getOriginalFilename(), file.getSize());
     	Path rootLocation = Paths.get(System.getProperty("java.io.tmpdir"));
     	Path csvFile = rootLocation.resolve("luongo.csv");
 
@@ -105,6 +106,7 @@ public class CatalogoController {
     			.addLong("time", System.currentTimeMillis())
     			.toJobParameters();
     	jobLauncher.run(job, jobParameters);
+    	logger.info("Batch import job launched");
     	return ResponseEntity.ok(true);
     }
 
