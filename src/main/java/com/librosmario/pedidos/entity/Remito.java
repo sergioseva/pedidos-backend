@@ -1,6 +1,5 @@
 package com.librosmario.pedidos.entity;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,9 +35,8 @@ public class Remito {
 	 String re_observaciones;
 	 
 
-	@OneToMany(cascade= {CascadeType.PERSIST, CascadeType.MERGE,
+	@OneToMany(mappedBy = "ri_remito_re", cascade= {CascadeType.PERSIST, CascadeType.MERGE,
 			 CascadeType.DETACH, CascadeType.REFRESH})
-	@JoinColumn(name="ri_remito_re")
 	private List<RemitoItem> items;
 		
 	 public String getRe_observaciones() {
@@ -52,7 +50,7 @@ public class Remito {
 	public List<RemitoItem> getItems() {
 		return items;
 	}
-	public void setItems(ArrayList<RemitoItem> items) {
+	public void setItems(List<RemitoItem> items) {
 		this.items = items;
 	}
 	public Integer getRe_remito_k() {

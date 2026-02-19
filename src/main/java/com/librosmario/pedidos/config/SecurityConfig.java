@@ -57,6 +57,8 @@ public class SecurityConfig {
                         .permitAll()
                     .requestMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
                         .permitAll()
+                    .requestMatchers("/configuracion", "/configuracion/logo")
+                        .permitAll()
                     .requestMatchers("/actuator/**")
                         .permitAll()
                     .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")

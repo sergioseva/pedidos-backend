@@ -27,6 +27,19 @@ insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_l
 insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_libro,pi_pendiente,pi_editorial_ed,pi_ensucursal,pi_retirado)
 		values (4,1,1,'libro4',true,1,false,false);
 
+-- Remito test data
+insert into re_remito(re_remito_k, re_fecha, re_distribuidora_ed, re_observaciones) values (1, '2025-01-15', 1, 'Remito de prueba');
+insert into re_remito(re_remito_k, re_fecha, re_distribuidora_ed, re_observaciones) values (2, '2025-02-20', 2, 'Segundo remito');
+
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (1, 1, 2, 'El Principito', 'Saint-Exupery', 'Salamandra', '978-1234567890', 1500.00);
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (2, 1, 1, 'Cien anos de soledad', 'Garcia Marquez', 'Sudamericana', '978-0987654321', 2500.00);
+
+-- Configuracion test data
+insert into co_configuracion(co_configuracion_k, co_nombre, co_direccion, co_telefono) values (1, 'Libros Mario', 'Calle Falsa 123', '011-1234567');
+
+-- ConfiguracionRemito test data
+insert into cr_configuracion_remito(cr_configuracion_remito_k, cr_remitente) values (1, 'Libros Mario - Remitente');
+
 -- Reset identity counters after explicit ID inserts (required for H2 2.x)
 ALTER TABLE users ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE roles ALTER COLUMN id RESTART WITH 10;
@@ -34,3 +47,7 @@ ALTER TABLE ed_editorial ALTER COLUMN ed_editorial_k RESTART WITH 10;
 ALTER TABLE cl_cliente ALTER COLUMN cl_cliente_k RESTART WITH 10;
 ALTER TABLE pe_pedido ALTER COLUMN pe_pedido_k RESTART WITH 10;
 ALTER TABLE pi_pedido_item ALTER COLUMN pi_pedido_item_k RESTART WITH 10;
+ALTER TABLE re_remito ALTER COLUMN re_remito_k RESTART WITH 10;
+ALTER TABLE ri_remito_item ALTER COLUMN ri_remito_item_k RESTART WITH 10;
+ALTER TABLE co_configuracion ALTER COLUMN co_configuracion_k RESTART WITH 10;
+ALTER TABLE cr_configuracion_remito ALTER COLUMN cr_configuracion_remito_k RESTART WITH 10;

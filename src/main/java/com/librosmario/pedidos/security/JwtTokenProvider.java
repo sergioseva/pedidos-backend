@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -34,8 +36,14 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
+        List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .collect(Collectors.toList());
+
         return Jwts.builder()
                 .subject(Long.toString(userPrincipal.getId()))
+                .claim("name", userPrincipal.getName())
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(expiryDate)
                 .signWith(key)

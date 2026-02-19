@@ -17,9 +17,12 @@ public class Distribuidora {
   
   @Column(name="ed_descripcion")
   private String descripcion;
-  
+
+  @Column(name="ed_nro_cuenta")
+  private String nroCuenta;
+
 public Distribuidora() {
-	
+
 }
   
 
@@ -38,5 +41,13 @@ public String getDescripcion() {
 }
 public void setDescripcion(String ed_descripcion) {
 	this.descripcion = ed_descripcion;
+}
+
+public String getNroCuenta() {
+	return nroCuenta;
+}
+
+public void setNroCuenta(String nroCuenta) {
+	this.nroCuenta = nroCuenta;
 }
 }

@@ -24,7 +24,7 @@ public class RemitoItem {
 	 @JsonIgnore
 	 @ManyToOne(cascade= {CascadeType.PERSIST, CascadeType.MERGE,
 			 CascadeType.DETACH, CascadeType.REFRESH})
-	 @JoinColumn(name="re_remito_k")
+	 @JoinColumn(name="ri_remito_re")
 	 private Remito ri_remito_re;
 	 
 	 @JsonIgnore

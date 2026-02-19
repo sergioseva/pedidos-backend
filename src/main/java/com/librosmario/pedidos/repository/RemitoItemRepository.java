@@ -1,12 +1,11 @@
 package com.librosmario.pedidos.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import com.librosmario.pedidos.entity.Remito;
+import com.librosmario.pedidos.entity.RemitoItem;
 
 @RepositoryRestResource(exported = false)
-public interface RemitoRepository extends JpaRepository<Remito, Integer>, JpaSpecificationExecutor<Remito> {
+public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer> {
 
 }
