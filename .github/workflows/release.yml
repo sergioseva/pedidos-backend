@@ -61,6 +61,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: BUILD_VERSION=${{ steps.meta.outputs.version }}
 
   deploy-staging:
     if: github.ref == 'refs/heads/master'

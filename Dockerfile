@@ -7,6 +7,8 @@ WORKDIR /build/
 RUN chmod +x gradlew && ./gradlew bootJar --no-daemon -x test
 
 FROM eclipse-temurin:17-jre-alpine
+ARG BUILD_VERSION=dev
+ENV INFO_APP_VERSION=$BUILD_VERSION
 VOLUME /tmp
 WORKDIR /app
 COPY --from=gradle_build /build/build/libs/*.jar /app/pedidos.jar
