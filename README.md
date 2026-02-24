@@ -37,3 +37,25 @@ INSERT INTO roles (id, name) VALUES (2, 'ROLE_USER');
 docker build -t pedidos .
 docker container run --rm -p 8080:8080 pedidos
 ```
+
+## CI/CD
+
+Automated via GitHub Actions (`.github/workflows/release.yml`):
+
+- **Push to `master`** → runs tests → builds and pushes `ghcr.io/sergioseva/pedidos-backend:master` → deploys to staging (`test.librosmario.store`)
+- **Push tag `v*`** → runs tests → builds and pushes `:v1.0.0` + `:latest` → deploys to production (`pedidos.librosmario.store`)
+
+### Rollback
+
+Go to **Actions > Rollback > Run workflow**, pick the version tag (e.g. `v1.0.0`) and environment.
+
+### Version check
+
+The running version is available at the actuator info endpoint:
+
+```bash
+curl https://pedidos.librosmario.store/api/actuator/info
+# {"app":{"version":"v1.0.0"}}
+```
+
+On staging the version shows `master`.
