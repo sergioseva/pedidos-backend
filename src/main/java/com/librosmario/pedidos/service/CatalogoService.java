@@ -1,8 +1,8 @@
 package com.librosmario.pedidos.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ public class CatalogoService {
 	@Autowired
 	CatalogoRepository repository;
 	
-	public List<Catalogo> findByAll(String descripcion,String autor,String editorial,String tema, String isbn) {
+	public Page<Catalogo> findByAll(String descripcion, String autor, String editorial, String tema, String isbn, Pageable pageable) {
 		Specification<Catalogo> specification = Specification
 				.where(descripcion == null ? null : CatalogoSpecifications.descripcionContains(descripcion))
 				.and(autor == null ? null : CatalogoSpecifications.autorContains(autor))
@@ -24,11 +24,11 @@ public class CatalogoService {
 				.and(tema == null ? null : CatalogoSpecifications.temaContains(autor))
 				.and(isbn == null ? null : CatalogoSpecifications.isbnContains(isbn))
 				;
-		
-		return repository.findAll(specification); 
+
+		return repository.findAll(specification, pageable);
 	}
-	
-	public List<Catalogo> findByAny(String parametro) {
+
+	public Page<Catalogo> findByAny(String parametro, Pageable pageable) {
 		Specification<Catalogo> specification = Specification
 				.where(CatalogoSpecifications.descripcionContains(parametro))
 				.or(CatalogoSpecifications.autorContains(parametro))
@@ -36,7 +36,7 @@ public class CatalogoService {
 				.or(CatalogoSpecifications.temaContains(parametro))
 				.or(CatalogoSpecifications.isbnContains(parametro))
 				;
-		return repository.findAll(specification); 
+		return repository.findAll(specification, pageable);
 	}
 
 }

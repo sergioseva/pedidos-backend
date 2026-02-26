@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -33,7 +32,10 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,23 +60,24 @@ public class CatalogoController {
     Job job;
 
     @GetMapping( value = "/catalogos/search/findByAny")
-    public ResponseEntity<List<Catalogo>> findByAny(@Param("parametro") String parametro) {
+    public ResponseEntity<Page<Catalogo>> findByAny(@RequestParam(required = false) String parametro,
+    												@PageableDefault(size = 20, sort = "descripcion", direction = Sort.Direction.ASC) Pageable pageable) {
 
     	logger.info("find by any");
-    	List<Catalogo> catalogos=service.findByAny(parametro);
+    	Page<Catalogo> catalogos = service.findByAny(parametro, pageable);
     	return ResponseEntity.ok(catalogos);
 
     }
 
     @GetMapping( value = "/catalogos/search/findByAll")
-    public ResponseEntity<List<Catalogo>> findByAll(@Param("libro") String libro,
-    												@Param("isbn") 	String isbn,
-    												@Param("autor") String autor,
-    												@Param("editorial") String editorial,
-    												@Param("tema") String tema
-    		) {
+    public ResponseEntity<Page<Catalogo>> findByAll(@RequestParam(required = false) String libro,
+    												@RequestParam(required = false) String isbn,
+    												@RequestParam(required = false) String autor,
+    												@RequestParam(required = false) String editorial,
+    																																				@RequestParam(required = false) String tema,
+    												@PageableDefault(size = 20, sort = "descripcion", direction = Sort.Direction.ASC) Pageable pageable) {
 
-    	List<Catalogo> catalogos=service.findByAll(libro,autor,editorial,tema,isbn);
+    	Page<Catalogo> catalogos = service.findByAll(libro, autor, editorial, tema, isbn, pageable);
     	return ResponseEntity.ok(catalogos);
 
     }

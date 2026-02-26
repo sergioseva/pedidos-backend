@@ -1,6 +1,7 @@
 package com.librosmario.pedidos.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +50,9 @@ public class CatalogoControllerTest {
 		mockMvc.perform(get("/catalogos/search/findByAny")
 				.header("Authorization", "Bearer " + token)
 				.param("parametro", "test"))
-				.andExpect(status().isOk());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.totalElements").isNumber());
 	}
 
 	@Test
@@ -57,6 +60,8 @@ public class CatalogoControllerTest {
 		mockMvc.perform(get("/catalogos/search/findByAll")
 				.header("Authorization", "Bearer " + token)
 				.param("libro", "test"))
-				.andExpect(status().isOk());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.totalElements").isNumber());
 	}
 }
