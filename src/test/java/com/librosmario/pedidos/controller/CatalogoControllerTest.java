@@ -52,7 +52,7 @@ public class CatalogoControllerTest {
 				.param("parametro", "test"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content").isArray())
-				.andExpect(jsonPath("$.totalElements").isNumber());
+				.andExpect(jsonPath("$.page.totalElements").isNumber());
 	}
 
 	@Test
@@ -62,6 +62,6 @@ public class CatalogoControllerTest {
 				.param("libro", "test"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content").isArray())
-				.andExpect(jsonPath("$.totalElements").isNumber());
+					.andExpect(jsonPath("$.page.totalElements").isNumber());
 	}
 }

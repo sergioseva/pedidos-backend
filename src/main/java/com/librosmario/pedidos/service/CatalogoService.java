@@ -21,7 +21,7 @@ public class CatalogoService {
 				.where(descripcion == null ? null : CatalogoSpecifications.descripcionContains(descripcion))
 				.and(autor == null ? null : CatalogoSpecifications.autorContains(autor))
 				.and(editorial == null ? null : CatalogoSpecifications.editorialContains(editorial))
-				.and(tema == null ? null : CatalogoSpecifications.temaContains(autor))
+				.and(tema == null ? null : CatalogoSpecifications.temaContains(tema))
 				.and(isbn == null ? null : CatalogoSpecifications.isbnContains(isbn))
 				;
 
