@@ -17,7 +17,7 @@ public class BatchStatistics {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Integer id;
 
-	@Column(name = "bt_proceso")
+	@Column(name 	= "bt_proceso")
 	String proceso;
 
 	@Column(name = "bt_starttime")
@@ -31,6 +31,12 @@ public class BatchStatistics {
 
 	@Column(name = "bt_errores")
 	Integer errores;
+
+	@Column(name = "bt_file_name")
+	String fileName;
+
+	@Column(name = "bt_metadata", columnDefinition = "TEXT")
+	String metadata;
 
 	public Integer getId() {
 		return id;
@@ -78,5 +84,21 @@ public class BatchStatistics {
 
 	public void setErrores(Integer errores) {
 		this.errores = errores;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public String getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(String metadata) {
+		this.metadata = metadata;
 	}
 }

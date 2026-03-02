@@ -46,8 +46,12 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
 
 		//save statistics
 		String query="INSERT INTO `librosmario`.`bt_batchstatistics` " +
-				"(`bt_proceso`,`bt_starttime`,`bt_endtime`,`bt_registros`,`bt_errores`) " +
-				"VALUES (?,?,?,?,?)";
+				"(`bt_proceso`,`bt_starttime`,`bt_endtime`,`bt_registros`,`bt_errores`,`bt_file_name`,`bt_metadata`) " +
+				"VALUES (?,?,?,?,?,?,?)";
+		String fileName = jobExecution.getJobParameters().getString("fileName");
+		String deleteOldParam = jobExecution.getJobParameters().getString("deleteOldRecords");
+		boolean deleteOldRecords = deleteOldParam == null || !"false".equalsIgnoreCase(deleteOldParam);
+		String metadata = "{\"deleteOldRecords\":" + deleteOldRecords + "}";
 		jdbcTemplate.execute(query,new PreparedStatementCallback<Boolean>(){
 		    @Override
 		    public Boolean doInPreparedStatement(PreparedStatement ps)
@@ -69,14 +73,20 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
 		        ps.setTimestamp(3, Timestamp.valueOf(jobExecution.getEndTime()));
 		        ps.setLong(4, leidos);
 		        ps.setLong(5, errores);
+		        ps.setString(6, fileName);
+		        ps.setString(7, metadata);
 		        return ps.execute();
 		    }
 		    });
 
 		if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
-			logger.info("Import successful, replacing old records");
-			// Delete old records and promote staging records
-			jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_FINAL);
+			if (deleteOldRecords) {
+				logger.info("Import successful, replacing old records");
+				jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_FINAL);
+			} else {
+				logger.info("Import successful, keeping old records");
+			}
+			// Promote staging records
 			jdbcTemplate.update("UPDATE cg_catalogo SET cg_creador=? WHERE cg_creador=?", CREADOR_FINAL, CREADOR_STAGING);
 			logger.info("============ JOB FINISHED ============");
 		} else {

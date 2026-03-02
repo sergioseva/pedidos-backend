@@ -88,7 +88,7 @@ public class CatalogoController {
     }
 
     @PostMapping( value = "/catalogos/import")
-    public  ResponseEntity<Boolean> importCatalogo(@RequestParam("file") MultipartFile file) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+    public  ResponseEntity<Boolean> importCatalogo(@RequestParam("file") MultipartFile file, @RequestParam(defaultValue = "true") boolean deleteOldRecords) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 
     	logger.info("Import catalogo request: filename='{}', size={} bytes", file.getOriginalFilename(), file.getSize());
     	Path rootLocation = Paths.get(System.getProperty("java.io.tmpdir"));
@@ -112,6 +112,8 @@ public class CatalogoController {
 
     	JobParameters jobParameters = new JobParametersBuilder()
     			.addLong("time", System.currentTimeMillis())
+    			.addString("fileName", file.getOriginalFilename())
+    			.addString("deleteOldRecords", String.valueOf(deleteOldRecords))
     			.toJobParameters();
     	jobLauncher.run(job, jobParameters);
     	logger.info("Batch import job launched");
