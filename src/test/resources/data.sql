@@ -40,6 +40,11 @@ insert into co_configuracion(co_configuracion_k, co_nombre, co_direccion, co_tel
 -- ConfiguracionRemito test data
 insert into cr_configuracion_remito(cr_configuracion_remito_k, cr_remitente) values (1, 'Libros Mario - Remitente');
 
+-- Catalogo test data
+insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (1, 'LU001', 'Sara y las estrellas', 'Lark Rise', 100.0, 'Planeta', '978-1111111111', 'novela juvenil');
+insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (2, 'LU002', 'El arte de programar', 'Donald Knuth', 200.0, 'Addison', '978-2222222222', 'referencia tecnica');
+insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (3, 'LU003', 'Sara en el bosque', 'Maria Lopez', 150.0, 'Santillana', '978-3333333333', 'cuento infantil');
+
 -- Reset identity counters after explicit ID inserts (required for H2 2.x)
 ALTER TABLE users ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE roles ALTER COLUMN id RESTART WITH 10;
@@ -51,3 +56,4 @@ ALTER TABLE re_remito ALTER COLUMN re_remito_k RESTART WITH 10;
 ALTER TABLE ri_remito_item ALTER COLUMN ri_remito_item_k RESTART WITH 10;
 ALTER TABLE co_configuracion ALTER COLUMN co_configuracion_k RESTART WITH 10;
 ALTER TABLE cr_configuracion_remito ALTER COLUMN cr_configuracion_remito_k RESTART WITH 10;
+ALTER TABLE cg_catalogo ALTER COLUMN cg_catalogo_k RESTART WITH 10;

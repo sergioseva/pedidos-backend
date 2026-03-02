@@ -56,6 +56,39 @@ public class CatalogoControllerTest {
 	}
 
 	@Test
+	void findByAnyWithColumnFilter() throws Exception {
+		mockMvc.perform(get("/catalogos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "sara")
+				.param("autor", "Lark"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.page.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].descripcion").value("Sara y las estrellas"));
+	}
+
+	@Test
+	void findByAnyWithOnlyColumnFilter() throws Exception {
+		mockMvc.perform(get("/catalogos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("descripcion", "sara"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.page.totalElements").value(2));
+	}
+
+	@Test
+	void findByAnyWithObservacionesFilter() throws Exception {
+		mockMvc.perform(get("/catalogos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("observaciones", "tecnica"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.page.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].autor").value("Donald Knuth"));
+	}
+
+	@Test
 	void findByAll() throws Exception {
 		mockMvc.perform(get("/catalogos/search/findByAll")
 				.header("Authorization", "Bearer " + token)

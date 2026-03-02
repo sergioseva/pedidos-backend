@@ -61,10 +61,15 @@ public class CatalogoController {
 
     @GetMapping( value = "/catalogos/search/findByAny")
     public ResponseEntity<Page<Catalogo>> findByAny(@RequestParam(required = false) String parametro,
+    												@RequestParam(required = false) String descripcion,
+    												@RequestParam(required = false) String autor,
+    												@RequestParam(required = false) String editorial,
+    												@RequestParam(required = false) String isbn,
+    												@RequestParam(required = false) String observaciones,
     												@PageableDefault(size = 20, sort = "descripcion", direction = Sort.Direction.ASC) Pageable pageable) {
 
-    	logger.info("find by any");
-    	Page<Catalogo> catalogos = service.findByAny(parametro, pageable);
+    	logger.info("findByAny parametro='{}', descripcion='{}', autor='{}', editorial='{}', isbn='{}', observaciones='{}', page={}, size={}", parametro, descripcion, autor, editorial, isbn, observaciones, pageable.getPageNumber(), pageable.getPageSize());
+    	Page<Catalogo> catalogos = service.findByAny(parametro, descripcion, autor, editorial, isbn, observaciones, pageable);
     	return ResponseEntity.ok(catalogos);
 
     }

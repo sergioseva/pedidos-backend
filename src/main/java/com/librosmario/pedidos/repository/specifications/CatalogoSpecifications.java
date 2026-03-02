@@ -10,26 +10,30 @@ import com.librosmario.pedidos.entity.Catalogo;
 public final class CatalogoSpecifications {
 
 	private static String contains(String expression) {
-	    return MessageFormat.format("%{0}%", expression);
+	    return MessageFormat.format("%{0}%", expression.toLowerCase());
 	}
-	
+
 	public static Specification<Catalogo> autorContains(String expression) {
-	    return (root, query, builder) -> builder.like(root.get("autor"), contains(expression));
+	    return (root, query, builder) -> builder.like(builder.lower(root.get("autor")), contains(expression));
 	}
 
 	public static Specification<Catalogo> descripcionContains(String expression) {
-	    return (root, query, builder) -> builder.like(root.get("descripcion"), contains(expression));
+	    return (root, query, builder) -> builder.like(builder.lower(root.get("descripcion")), contains(expression));
 	}
 
 	public static Specification<Catalogo> editorialContains(String expression) {
-	    return (root, query, builder) -> builder.like(root.get("editorial"), contains(expression));
+	    return (root, query, builder) -> builder.like(builder.lower(root.get("editorial")), contains(expression));
 	}
-	
+
 	public static Specification<Catalogo> temaContains(String expression) {
-	    return (root, query, builder) -> builder.like(root.get("tema"), contains(expression));
+	    return (root, query, builder) -> builder.like(builder.lower(root.get("tema")), contains(expression));
 	}
-	
+
 	public static Specification<Catalogo> isbnContains(String expression) {
-	    return (root, query, builder) -> builder.like(root.get("isbn"), contains(expression));
+	    return (root, query, builder) -> builder.like(builder.lower(root.get("isbn")), contains(expression));
+	}
+
+	public static Specification<Catalogo> observacionesContains(String expression) {
+	    return (root, query, builder) -> builder.like(builder.lower(root.get("observaciones")), contains(expression));
 	}
 }
