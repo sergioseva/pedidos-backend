@@ -1,5 +1,6 @@
 package com.librosmario.pedidos.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,6 +67,30 @@ public class PedidoDistribuidoraServiceTest {
 		//verifico que no me grabó el pedido en null
 		assertNotNull(pedidoItemsRepository.findAll().get(0).getPedido());
 
+	}
+
+	@Test
+	public void shouldFindByAnyWithDistribuidoraName() {
+		List<PedidoDistribuidora> result = pedidoDistribuidoraService.findByAny("test", null, null);
+		assertThat(result).isNotEmpty();
+	}
+
+	@Test
+	public void shouldFindByAnyWithLibroName() {
+		List<PedidoDistribuidora> result = pedidoDistribuidoraService.findByAny("libro1", null, null);
+		assertThat(result).isNotEmpty();
+	}
+
+	@Test
+	public void shouldFindByAnyWithDates() {
+		List<PedidoDistribuidora> result = pedidoDistribuidoraService.findByAny("test", "2025-01-01", "2025-12-31");
+		assertThat(result).isNotEmpty();
+	}
+
+	@Test
+	public void shouldReturnEmptyForNonMatchingSearch() {
+		List<PedidoDistribuidora> result = pedidoDistribuidoraService.findByAny("nonexistent_xyz", null, null);
+		assertThat(result).isEmpty();
 	}
 
 }

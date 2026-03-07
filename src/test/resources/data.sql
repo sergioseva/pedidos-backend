@@ -34,6 +34,13 @@ insert into re_remito(re_remito_k, re_fecha, re_distribuidora_ed, re_observacion
 insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (1, 1, 2, 'El Principito', 'Saint-Exupery', 'Salamandra', '978-1234567890', 1500.00);
 insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (2, 1, 1, 'Cien anos de soledad', 'Garcia Marquez', 'Sudamericana', '978-0987654321', 2500.00);
 
+-- PedidoDistribuidora test data
+insert into pd_pedido_a_distribuidora(pd_pedido_a_distribuidora_k, pd_fecha, pd_distribuidora_ed, pd_pedido_realizado) values (1, '2025-03-10 10:00:00', 1, false);
+insert into pd_pedido_a_distribuidora(pd_pedido_a_distribuidora_k, pd_fecha, pd_distribuidora_ed, pd_pedido_realizado) values (2, '2025-04-15 14:30:00', 2, true);
+insert into pdpi_pedido_distribuidora_item(pdpi_pedido_a_distribuidora_pd, pdpi_pedido_item_pi) values (1, 1);
+insert into pdpi_pedido_distribuidora_item(pdpi_pedido_a_distribuidora_pd, pdpi_pedido_item_pi) values (1, 2);
+insert into pdpi_pedido_distribuidora_item(pdpi_pedido_a_distribuidora_pd, pdpi_pedido_item_pi) values (2, 3);
+
 -- Configuracion test data
 insert into co_configuracion(co_configuracion_k, co_nombre, co_direccion, co_telefono) values (1, 'Libros Mario', 'Calle Falsa 123', '011-1234567');
 
@@ -57,3 +64,4 @@ ALTER TABLE ri_remito_item ALTER COLUMN ri_remito_item_k RESTART WITH 10;
 ALTER TABLE co_configuracion ALTER COLUMN co_configuracion_k RESTART WITH 10;
 ALTER TABLE cr_configuracion_remito ALTER COLUMN cr_configuracion_remito_k RESTART WITH 10;
 ALTER TABLE cg_catalogo ALTER COLUMN cg_catalogo_k RESTART WITH 10;
+ALTER TABLE pd_pedido_a_distribuidora ALTER COLUMN pd_pedido_a_distribuidora_k RESTART WITH 10;

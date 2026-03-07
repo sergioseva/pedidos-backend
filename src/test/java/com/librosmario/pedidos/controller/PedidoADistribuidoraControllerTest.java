@@ -1,6 +1,8 @@
 package com.librosmario.pedidos.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +65,45 @@ public class PedidoADistribuidoraControllerTest {
 		mockMvc.perform(post("/pedidodistribuidora")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("{\"items\":[],\"distribuidora\":{\"id\":1}}"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void findByAny() throws Exception {
+		mockMvc.perform(get("/pedidosdistribuidora/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "test"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isNotEmpty());
+	}
+
+	@Test
+	void findByAnyWithDates() throws Exception {
+		mockMvc.perform(get("/pedidosdistribuidora/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "test")
+				.param("fechaDesde", "2025-01-01")
+				.param("fechaHasta", "2025-12-31"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isNotEmpty());
+	}
+
+	@Test
+	void findByAnyByLibro() throws Exception {
+		mockMvc.perform(get("/pedidosdistribuidora/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "libro1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isNotEmpty());
+	}
+
+	@Test
+	void findByAnyRequiresAuthentication() throws Exception {
+		mockMvc.perform(get("/pedidosdistribuidora/search/findByAny")
+				.param("parametro", "test"))
 				.andExpect(status().isUnauthorized());
 	}
 }
