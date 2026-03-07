@@ -1,16 +1,14 @@
 package com.librosmario.pedidos.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -33,18 +31,9 @@ public class PedidoDistribuidora {
 	 @Column(name="pd_pedido_realizado")
 	 boolean realizado;
 	 
-	  @ManyToMany(cascade = {})
-	  @JoinTable(
-				name="pdpi_pedido_distribuidora_item",
-				inverseJoinColumns=@JoinColumn(name="pdpi_pedido_item_pi"),
-				joinColumns=@JoinColumn(name="pdpi_pedido_a_distribuidora_pd")
-				)	
-	 private List<PedidoItem> items; 
-	 
-	  
-	 public void addPedidoItem(PedidoItem pi) {
-		 items.add(pi);
-	 }
+	 @ManyToOne(fetch = FetchType.EAGER)
+	 @JoinColumn(name = "pd_pedido_item_pi")
+	 private PedidoItem item;
 	 
 
 	public Integer getId() {
@@ -87,13 +76,12 @@ public class PedidoDistribuidora {
 	}
 
 
-	public void setItems(List<PedidoItem> items) {
-		this.items = items;
+	public PedidoItem getItem() {
+		return item;
 	}
 
-
-	public List<PedidoItem> getItems() {
-		return items;
+	public void setItem(PedidoItem item) {
+		this.item = item;
 	}
 	
 

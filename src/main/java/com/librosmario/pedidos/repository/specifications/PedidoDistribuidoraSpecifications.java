@@ -27,10 +27,8 @@ public final class PedidoDistribuidoraSpecifications {
 
 	public static Specification<PedidoDistribuidora> itemLibroContains(String expression) {
 	    return (root, query, builder) -> {
-	    	Join<PedidoDistribuidora, PedidoItem> itemJoin = root.join("items");
-	        Predicate likePredicate = builder.like(itemJoin.get("libro"), contains(expression));
-	        query.distinct(true);
-	        return likePredicate;
+	    	Join<PedidoDistribuidora, PedidoItem> itemJoin = root.join("item");
+	        return builder.like(itemJoin.get("libro"), contains(expression));
 	    };
 	}
 

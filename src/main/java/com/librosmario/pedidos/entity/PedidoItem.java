@@ -12,11 +12,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @Entity
@@ -67,7 +68,7 @@ public class PedidoItem {
 	 
 
 	  @JsonIgnore
-	  @ManyToMany(mappedBy = "items", fetch = FetchType.EAGER)
+	  @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
 	  private List<PedidoDistribuidora> pedidosADistribuidoras= new ArrayList<PedidoDistribuidora>();
 	
 	  
@@ -85,6 +86,41 @@ public class PedidoItem {
 		this.id = id;
 	}
 
+
+	@JsonProperty("pedidoId")
+	public Integer getIdPedido() {
+		return pedido != null ? pedido.getId() : null;
+	}
+
+	@JsonProperty("pedidoDistribuidoraId")
+	public Integer getActivePedidoDistribuidoraId() {
+		if (pedidosADistribuidoras == null) return null;
+		return pedidosADistribuidoras.stream()
+				.filter(pd -> !pd.isRealizado())
+				.findFirst()
+				.map(PedidoDistribuidora::getId)
+				.orElse(null);
+	}
+
+	@JsonProperty("distribuidoraConfirmadaId")
+	public Integer getActiveDistribuidoraId() {
+		if (pedidosADistribuidoras == null) return null;
+		return pedidosADistribuidoras.stream()
+				.filter(pd -> !pd.isRealizado())
+				.findFirst()
+				.map(pd -> pd.getDistribuidora().getId())
+				.orElse(null);
+	}
+
+	@JsonProperty("distribuidoraConfirmadaNombre")
+	public String getActiveDistribuidoraNombre() {
+		if (pedidosADistribuidoras == null) return null;
+		return pedidosADistribuidoras.stream()
+				.filter(pd -> !pd.isRealizado())
+				.findFirst()
+				.map(pd -> pd.getDistribuidora().getDescripcion())
+				.orElse(null);
+	}
 
 	public Pedido getPedido() {
 		return pedido;

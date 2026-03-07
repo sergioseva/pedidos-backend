@@ -55,12 +55,16 @@ public class PedidoDistribuidoraServiceTest {
 		int countBefore=pedidoDistribuidoraRepository.findAll().size();
 
 
-		PedidoDistribuidora result=pedidoDistribuidoraService.confirmarPedidoADistribuidora(pil, distribuidora.get());
+		List<PedidoDistribuidora> result=pedidoDistribuidoraService.confirmarPedidoADistribuidora(pil, distribuidora.get());
 		assertNotNull(result);
+		assertEquals(pil.size(), result.size());
 
-		assertEquals(0,pedidoItemService.getAllPending().size());
+		// Items stay pending until arrival is confirmed
+		assertEquals(pil.size(), pedidoItemService.getAllPending().size());
 
-		assertEquals(countBefore + 1,pedidoDistribuidoraRepository.findAll().size());
+		// Count increased by new PDs minus deleted active ones
+		int newCount = pedidoDistribuidoraRepository.findAll().size();
+		assertTrue(newCount > countBefore, "Should have more PedidoDistribuidora records than before");
 		//verifico que no haya aumentado la cantidad de pedidoItems
 
 		assertEquals(cantItems,pedidoItemsRepository.findAll().size());
@@ -91,6 +95,18 @@ public class PedidoDistribuidoraServiceTest {
 	public void shouldReturnEmptyForNonMatchingSearch() {
 		List<PedidoDistribuidora> result = pedidoDistribuidoraService.findByAny("nonexistent_xyz", null, null);
 		assertThat(result).isEmpty();
+	}
+
+	@Test
+	public void confirmarLlegadaShouldMarkItemAsNotPending() {
+		// Item 1 is pending and linked to PedidoDistribuidora 1
+		PedidoItem item = pedidoItemsRepository.findById(1).orElseThrow();
+		assertTrue(item.getPendiente());
+
+		pedidoDistribuidoraService.confirmarLlegada(1);
+
+		PedidoItem updated = pedidoItemsRepository.findById(1).orElseThrow();
+		assertThat(updated.getPendiente()).isFalse();
 	}
 
 }

@@ -2,7 +2,9 @@ package com.librosmario.pedidos.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.librosmario.pedidos.entity.Distribuidora;
 import com.librosmario.pedidos.entity.PedidoDistribuidora;
@@ -32,27 +35,55 @@ public class PedidoDistribuidoraService {
 	@Autowired
 	PedidoItemRepository pedidoItemRepository;
 
-	public PedidoDistribuidora confirmarPedidoADistribuidora(List<PedidoItem> items,Distribuidora distribuidora) {
-		// Load managed entities from DB to avoid Hibernate HHH000502 warnings
-		// (deserialized items have the immutable 'pedido' field set from JSON)
+	@Transactional
+	public List<PedidoDistribuidora> confirmarPedidoADistribuidora(List<PedidoItem> items, Distribuidora distribuidora) {
 		List<Integer> itemIds = items.stream().map(PedidoItem::getId).collect(Collectors.toList());
 		List<PedidoItem> managedItems = pedidoItemRepository.findAllById(itemIds);
 
-		PedidoDistribuidora pd=new PedidoDistribuidora();
-		pd.setDistribuidora(distribuidora);
-		pd.setFecha(LocalDateTime.now());
-		pd.setItems(managedItems);
+		List<PedidoDistribuidora> result = new ArrayList<>();
+		for (PedidoItem pi : managedItems) {
+			// Delete any existing active (non-realizado) PedidoDistribuidora for this item
+			Optional<PedidoDistribuidora> existing = pi.getPedidosADistribuidoras().stream()
+					.filter(pd -> !pd.isRealizado())
+					.findFirst();
+			if (existing.isPresent()) {
+				PedidoDistribuidora oldPd = existing.get();
+				pi.getPedidosADistribuidoras().remove(oldPd);
+				pedidoADistribuidoraRepository.delete(oldPd);
+				logger.info("Deleted old PedidoDistribuidora {} for item {}", oldPd.getId(), pi.getId());
+			}
 
-		for (PedidoItem pi:managedItems ) {
+			// Create a new PedidoDistribuidora for this item
+			PedidoDistribuidora pd = new PedidoDistribuidora();
+			pd.setDistribuidora(distribuidora);
+			pd.setFecha(LocalDateTime.now());
+			pd.setItem(pi);
 			pi.getPedidosADistribuidoras().add(pd);
+
+			result.add(pedidoADistribuidoraRepository.save(pd));
 		}
 
-		PedidoDistribuidora pdnew =pedidoADistribuidoraRepository.save(pd);
-		logger.info("Pedido a distribuidora '{}' confirmed with {} items (IDs: {})", distribuidora.getDescripcion(), managedItems.size(), itemIds);
+		logger.info("Pedido a distribuidora '{}' confirmed: {} item(s) (IDs: {})", distribuidora.getDescripcion(), managedItems.size(), itemIds);
+		return result;
+	}
 
-		pedidoItemService.marcarComoNoPendientes(managedItems);
-		logger.info("Marked {} items as no-pendientes", managedItems.size());
-		return pdnew;
+	@Transactional
+	public void confirmarLlegada(Integer pedidoItemId) {
+		PedidoItem item = pedidoItemRepository.findById(pedidoItemId)
+				.orElseThrow(() -> new RuntimeException("PedidoItem not found: " + pedidoItemId));
+		item.setPendiente(false);
+		pedidoItemRepository.save(item);
+		logger.info("Item {} marked as arrived (pendiente=false)", pedidoItemId);
+
+		// Mark the active PedidoDistribuidora as realizado
+		item.getPedidosADistribuidoras().stream()
+				.filter(pd -> !pd.isRealizado())
+				.findFirst()
+				.ifPresent(pd -> {
+					pd.setRealizado(true);
+					pedidoADistribuidoraRepository.save(pd);
+					logger.info("PedidoDistribuidora {} marked as realizado", pd.getId());
+				});
 	}
 
 	public List<PedidoDistribuidora> findByAny(String parametro, String fechaDesde, String fechaHasta) {

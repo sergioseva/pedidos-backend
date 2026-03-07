@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,14 +25,35 @@ public class PedidoADistribuidoraController {
 	PedidoDistribuidoraService pedidoDistribuidoraService;
 
     @PostMapping(value="/pedidodistribuidora",consumes={"application/json"})
-    public ResponseEntity<PedidoDistribuidora> createPedido(@RequestBody ConfirmacionPedidoADistribuidoraDTO  cpd){
-    	
+    public ResponseEntity<List<PedidoDistribuidora>> createPedido(@RequestBody ConfirmacionPedidoADistribuidoraDTO  cpd){
+
     	try {
-    		PedidoDistribuidora pd=pedidoDistribuidoraService.confirmarPedidoADistribuidora(cpd.getItems(), cpd.getDistribuidora());
-    		return new ResponseEntity<PedidoDistribuidora>(pd,HttpStatus.CREATED);
+    		List<PedidoDistribuidora> result = pedidoDistribuidoraService.confirmarPedidoADistribuidora(cpd.getItems(), cpd.getDistribuidora());
+    		return new ResponseEntity<>(result, HttpStatus.CREATED);
     	} catch (Exception e) {
     		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There was an error saving the pedidoDistribuidora", e);
-    		//return new ResponseEntity<Pedido>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+    	}
+    }
+
+    @PostMapping(value="/pedidodistribuidora/confirmarLlegada/{itemId}")
+    public ResponseEntity<Void> confirmarLlegada(@PathVariable Integer itemId) {
+    	try {
+    		pedidoDistribuidoraService.confirmarLlegada(itemId);
+    		return ResponseEntity.ok().build();
+    	} catch (Exception e) {
+    		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error confirming arrival", e);
+    	}
+    }
+
+    @PostMapping(value="/pedidodistribuidora/confirmarLlegadaBulk")
+    public ResponseEntity<Void> confirmarLlegadaBulk(@RequestBody List<Integer> itemIds) {
+    	try {
+    		for (Integer itemId : itemIds) {
+    			pedidoDistribuidoraService.confirmarLlegada(itemId);
+    		}
+    		return ResponseEntity.ok().build();
+    	} catch (Exception e) {
+    		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error confirming arrival", e);
     	}
     }
 
