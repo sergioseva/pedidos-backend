@@ -43,7 +43,7 @@ docker container run --rm -p 8080:8080 pedidos
 Automated via GitHub Actions (`.github/workflows/release.yml`):
 
 - **Push to `master`** → runs tests → builds and pushes `ghcr.io/sergioseva/pedidos-backend:master` → deploys to staging (`test.librosmario.store`)
-- **Push tag `v*`** → runs tests → builds and pushes `:v1.0.0` + `:latest` → deploys to production (`pedidos.librosmario.store`)
+- **Push tag `v*`** → runs tests → builds and pushes `:v1.0.0` + `:latest` → deploys to production (`pedidos.gchu.librosmario.com.ar`; the legacy `pedidos.librosmario.store` is kept as an alias)
 
 ### Rollback
 
@@ -54,7 +54,7 @@ Go to **Actions > Rollback > Run workflow**, pick the version tag (e.g. `v1.0.0`
 The running version is available at the actuator info endpoint:
 
 ```bash
-curl https://pedidos.librosmario.store/api/actuator/info
+curl https://pedidos.gchu.librosmario.com.ar/api/actuator/info
 # {"app":{"version":"v1.0.0"}}
 ```
 

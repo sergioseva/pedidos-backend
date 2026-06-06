@@ -10,15 +10,18 @@
         <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
+        <Sentry name="Sentry" minimumEventLevel="ERROR" minimumBreadcrumbLevel="INFO"/>
     </Appenders>
 
     <Loggers>
         <Logger name="pedidos" level="debug" additivity="false">
             <AppenderRef ref="ConsoleAppender" />
+            <AppenderRef ref="Sentry"/>
         </Logger>
 
         <Root level="info">
             <AppenderRef ref="ConsoleAppender" />
+            <AppenderRef ref="Sentry"/>
         </Root>
     </Loggers>
 </Configuration>

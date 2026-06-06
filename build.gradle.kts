@@ -47,6 +47,9 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.18.1")
+    implementation("io.sentry:sentry-log4j2:7.18.1")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.hsqldb:hsqldb")
     testImplementation("com.h2database:h2")

@@ -12,8 +12,8 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
             <!-- Rolling File Appender -->
-		<RollingFile name="FileAppender" 
-					 fileName="${basePath}/log4j2.log" 
+		<RollingFile name="FileAppender"
+					 fileName="${basePath}/log4j2.log"
 		             filePattern="${basePath}/log4j2-%d{yyyy-MM-dd}-%i.log">
 		    <PatternLayout>
 		        <Pattern>${LOG_PATTERN}</Pattern>
@@ -23,17 +23,20 @@
 		    </Policies>
 		    <DefaultRolloverStrategy max="10"/>
 		</RollingFile>
+        <Sentry name="Sentry" minimumEventLevel="ERROR" minimumBreadcrumbLevel="INFO"/>
     </Appenders>
 
     <Loggers>
         <Logger name="pedidos" level="debug" additivity="false">
             <AppenderRef ref="ConsoleAppender" />
             <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Sentry"/>
         </Logger>
 
         <Root level="info">
             <AppenderRef ref="ConsoleAppender" />
             <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Sentry"/>
         </Root>
 
     </Loggers>
