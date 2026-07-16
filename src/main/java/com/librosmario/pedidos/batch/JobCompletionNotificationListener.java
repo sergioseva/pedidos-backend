@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
@@ -45,7 +46,7 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
 		logger.info("Job finished with status: " + jobExecution.getStatus());
 
 		//save statistics
-		String query="INSERT INTO `librosmario`.`bt_batchstatistics` " +
+		String query="INSERT INTO bt_batchstatistics " +
 				"(`bt_proceso`,`bt_starttime`,`bt_endtime`,`bt_registros`,`bt_errores`,`bt_file_name`,`bt_metadata`) " +
 				"VALUES (?,?,?,?,?,?,?)";
 		String fileName = jobExecution.getJobParameters().getString("fileName");
@@ -79,7 +80,22 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
 		    }
 		    });
 
+		long writeCount = 0;
+		for (StepExecution step : jobExecution.getStepExecutions()) {
+			writeCount = writeCount + step.getWriteCount();
+		}
+
 		if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
+			// An import that wrote nothing must never replace the catalog: deleting the
+			// old records and promoting zero staging rows would leave it empty.
+			if (writeCount == 0) {
+				logger.error("Import completed without writing any record, keeping existing catalog");
+				jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_STAGING);
+				jobExecution.setStatus(BatchStatus.FAILED);
+				jobExecution.setExitStatus(ExitStatus.FAILED.addExitDescription(
+						"No record was imported, the existing catalog was kept"));
+				return;
+			}
 			if (deleteOldRecords) {
 				logger.info("Import successful, replacing old records");
 				jdbcTemplate.update("DELETE FROM cg_catalogo WHERE cg_creador=?", CREADOR_FINAL);
