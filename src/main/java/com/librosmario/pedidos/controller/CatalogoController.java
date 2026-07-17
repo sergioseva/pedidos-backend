@@ -47,6 +47,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -95,6 +96,16 @@ public class CatalogoController {
     	Page<Catalogo> catalogos = service.findByAny(parametro, descripcion, autor, editorial, isbn, observaciones, pageable);
     	return ResponseEntity.ok(catalogos);
 
+    }
+
+    /**
+     * Exact ISBN lookup for the till's barcode reader. Two segments, so it does not collide with
+     * the Spring Data REST export's /catalogos/{id}. Returns 404 when unknown, which the front
+     * uses to offer manual entry rather than blocking the sale.
+     */
+    @GetMapping( value = "/catalogos/isbn/{isbn}")
+    public ResponseEntity<Catalogo> findByIsbn(@PathVariable String isbn) {
+    	return ResponseEntity.ok(service.findByIsbn(isbn));
     }
 
     @GetMapping( value = "/catalogos/search/findByAll")

@@ -7,9 +7,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+/**
+ * The index on cg_isbn serves the barcode lookup at the till: the catalog holds ~92k rows and a
+ * scan must resolve instantly. It is deliberately NOT unique -- the catalog is third-party data
+ * and a duplicate ISBN would otherwise fail the import rather than just look odd.
+ */
 @Entity
-@Table(name="cg_catalogo")
+@Table(name="cg_catalogo", indexes = @Index(name="ix_cg_isbn", columnList="cg_isbn"))
 public class Catalogo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

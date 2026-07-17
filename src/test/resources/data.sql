@@ -1,8 +1,12 @@
 insert into users(id,name,username, email, password) values (1,'test','test','test@test.com','$2a$10$jkSu5R0yZPteOd9yY5J/p.gFnr1XVGIGmisaE.6MhNE84Bcu7Woc.');
+-- Same bcrypt hash as 'test' (password 12345678), but ROLE_USER only. 'test' holds both roles, so
+-- without this account an admin-only endpoint cannot be proven to reject a plain user.
+insert into users(id,name,username, email, password) values (2,'vendedor','vendedor','vendedor@test.com','$2a$10$jkSu5R0yZPteOd9yY5J/p.gFnr1XVGIGmisaE.6MhNE84Bcu7Woc.');
 insert into roles (id,name) values(1,'ROLE_ADMIN');
 insert into roles (id,name) values(2,'ROLE_USER');
 insert into user_roles(user_id,role_id) values (1,1);
 insert into user_roles(user_id,role_id) values (1,2);
+insert into user_roles(user_id,role_id) values (2,2);
 
 insert into ed_editorial(ed_editorial_k,ed_descripcion) values (1,'Distribuidora test');
 insert into ed_editorial(ed_editorial_k,ed_descripcion) values (2,'Distribuidora test 2');
@@ -48,6 +52,9 @@ insert into cr_configuracion_remito(cr_configuracion_remito_k, cr_remitente) val
 insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (1, 'LU001', 'Sara y las estrellas', 'Lark Rise', 100.0, 'Planeta', '978-1111111111', 'novela juvenil');
 insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (2, 'LU002', 'El arte de programar', 'Donald Knuth', 200.0, 'Addison', '978-2222222222', 'referencia tecnica');
 insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (3, 'LU003', 'Sara en el bosque', 'Maria Lopez', 150.0, 'Santillana', '978-3333333333', 'cuento infantil');
+-- A plain-digit ISBN: this is what a barcode reader actually emits, and what the real Luongo
+-- catalog stores. Rows 1-3 above keep their dashes so the normalizing fallback stays covered.
+insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (4, 'LU004', 'Pan y manteca', 'Cocinero Anonimo', 6477.27, 'Sudamericana', '9789871051014', 'cocina');
 
 -- Reset identity counters after explicit ID inserts (required for H2 2.x)
 ALTER TABLE users ALTER COLUMN id RESTART WITH 10;
