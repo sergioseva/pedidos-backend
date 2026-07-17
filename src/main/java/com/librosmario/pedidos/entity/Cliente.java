@@ -1,7 +1,14 @@
 package com.librosmario.pedidos.entity;
 
+import java.time.Instant;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="cl_cliente")
+@EntityListeners(AuditingEntityListener.class)
 public class Cliente {
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,9 +42,26 @@ public class Cliente {
 	 @Email
 	 @Column(name="cl_email")
 	 String email;
-	 
+
+	 // Populated automatically by JPA auditing. createdAt is updatable=false so an update -- including
+	 // a Spring Data REST PUT that carries a null -- can never wipe the original creation time.
+	 @CreatedDate
+	 @Column(name="cl_created_at", updatable=false)
+	 Instant createdAt;
+	 @LastModifiedDate
+	 @Column(name="cl_updated_at")
+	 Instant updatedAt;
+
 	public Cliente() {
-		
+
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public Instant getUpdatedAt() {
+		return updatedAt;
 	}
 
 	public String getNombre() {
