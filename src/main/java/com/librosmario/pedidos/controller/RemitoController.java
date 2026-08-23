@@ -6,7 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -114,6 +117,20 @@ public class RemitoController {
 	@GetMapping(value = "/remitos/{id}/recibo")
 	public ResponseEntity<Recibo> getRecibo(@PathVariable Integer id) {
 		return ResponseEntity.ok(service.findReciboByRemito(id));
+	}
+
+	/** El detalle de un comercio como .xlsx, con el mismo filtro que tenia la pantalla. */
+	@GetMapping(value = "/remitos/consignacion/estadocuenta/reporte")
+	public ResponseEntity<byte[]> reporteConsignacion(@RequestParam Integer comercioId,
+			@RequestParam(required = false) String fechaDesde,
+			@RequestParam(required = false) String fechaHasta) {
+		byte[] xlsx = service.generarReporteConsignacion(comercioId, fechaDesde, fechaHasta);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment; filename=\"consignacion_" + comercioId + ".xlsx\"")
+				.contentType(MediaType.parseMediaType(
+						"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+				.body(xlsx);
 	}
 
 	/** Que hay en la calle: libros entregados en consignacion, por comercio y titulo. */

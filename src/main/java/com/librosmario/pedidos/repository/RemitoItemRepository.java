@@ -28,6 +28,10 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 	 *
 	 * El filtro de fechas se aplica solo a las entregas. Acotarlo tambien a las bajas dejaria
 	 * afuera retiros y ventas posteriores al rango y el saldo saldria inflado.
+	 *
+	 * El orden va por TRIM del titulo: buena parte del catalogo tiene el nombre con espacios
+	 * adelante, y sin recortarlos esos titulos se van todos al principio de la lista y el listado
+	 * se ve desordenado.
 	 */
 	@Query("SELECT new com.librosmario.pedidos.payload.ConsignacionEstadoCuentaDTO("
 			+ "  c.id, c.descripcion, i.ri_isbn, i.ri_nombre_libro, i.ri_autor, i.ri_editorial,"
@@ -43,7 +47,7 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 			+ "            AND (:hasta IS NULL OR r.re_fecha <= :hasta)))"
 			+ " GROUP BY c.id, c.descripcion, i.ri_isbn, i.ri_nombre_libro, i.ri_autor, i.ri_editorial"
 			+ " HAVING sum(CASE WHEN r.re_tipo = 'CONSIGNACION' THEN i.ri_cantidad ELSE -i.ri_cantidad END) > 0"
-			+ " ORDER BY c.descripcion ASC, i.ri_nombre_libro ASC")
+			+ " ORDER BY c.descripcion ASC, TRIM(i.ri_nombre_libro) ASC")
 	List<ConsignacionEstadoCuentaDTO> estadoCuentaConsignacion(@Param("comercioId") Integer comercioId,
 			@Param("desde") Date desde, @Param("hasta") Date hasta);
 }

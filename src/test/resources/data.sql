@@ -57,6 +57,8 @@ insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombr
 -- Otro libro con el MISMO ISBN que 'El Principito': es lo que pasa en la base real, donde medio
 -- catalogo quedo con el ISBN en notacion cientifica y titulos ajenos comparten la cadena.
 insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (7, 3, 1, 'Zz Libro Clonado', 'Otro Autor', 'Otra Ed', '978-1234567890', 500.00);
+-- Con espacios adelante, como viene buena parte del catalogo real: debe ordenar por 'Martin', no primero.
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (8, 3, 1, '  Martin Fierro', 'Hernandez', 'Losada', '978-8888888888', 900.00);
 
 -- PedidoDistribuidora test data (1 per item)
 insert into pd_pedido_a_distribuidora(pd_pedido_a_distribuidora_k, pd_fecha, pd_distribuidora_ed, pd_pedido_realizado, pd_pedido_item_pi) values (1, '2025-03-10 10:00:00', 1, false, 1);

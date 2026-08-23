@@ -142,6 +142,14 @@ public class RemitoService {
 				.orElseThrow(() -> new ResourceNotFoundException("Remito", "id", id));
 	}
 
+	/** El mismo detalle que se imprime, en .xlsx, para que el negocio lo cruce con sus existencias. */
+	public byte[] generarReporteConsignacion(Integer comercioId, String fechaDesde, String fechaHasta) {
+		Comercio comercio = comercioRepository.findById(comercioId)
+				.orElseThrow(() -> new ResourceNotFoundException("Comercio", "id", comercioId));
+		return ConsignacionReporteExcel.build(comercio,
+				estadoCuentaConsignacion(comercioId, fechaDesde, fechaHasta));
+	}
+
 	public Recibo findReciboByRemito(Integer remitoId) {
 		return reciboRepository.findByRemitoId(remitoId)
 				.orElseThrow(() -> new ResourceNotFoundException("Recibo", "remito", remitoId));

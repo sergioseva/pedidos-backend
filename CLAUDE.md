@@ -136,6 +136,10 @@ A sale remito has at most one recibo (`uk_rc_remito`); payment is optional and c
 
 Consignment sales deliberately do **not** touch `ve_venta` — the Ventas section stays the till.
 
+The balance query orders by `TRIM(ri_nombre_libro)`: a good part of the catalog has titles stored with leading spaces, and without trimming those sort ahead of everything else and the listing looks unsorted. Note the `GROUP BY` still uses the raw title, so the same book delivered under both spellings shows as two lines — a leftover of the corrupted April import, same root cause as the scientific-notation ISBNs.
+
+`GET /remitos/consignacion/estadocuenta/reporte` returns the same detail as an `.xlsx` (`ConsignacionReporteExcel`, built with the POI already on the classpath for catalog import).
+
 ### Database
 
 - **Production/Dev**: MySQL 8.0 on port 1218, database `librosmario`

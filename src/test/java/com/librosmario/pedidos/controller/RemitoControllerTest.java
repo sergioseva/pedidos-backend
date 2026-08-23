@@ -4,6 +4,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -264,6 +266,48 @@ public class RemitoControllerTest {
 				.andExpect(jsonPath("$[?(@.nombreLibro == \'Rayuela\')]").isNotEmpty())
 				// 'Cien anos de soledad' esta en un remito de DEVOLUCION a distribuidora.
 				.andExpect(jsonPath("$[?(@.nombreLibro == \'Cien anos de soledad\')]").isEmpty());
+	}
+
+	@Test
+	void reporteConsignacionDevuelveUnXlsx() throws Exception {
+		byte[] xlsx = mockMvc.perform(get("/remitos/consignacion/estadocuenta/reporte")
+				.header("Authorization", "Bearer " + token)
+				.param("comercioId", "1"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("Content-Disposition",
+						org.hamcrest.Matchers.containsString(".xlsx")))
+				.andReturn().getResponse().getContentAsByteArray();
+
+		// Un .xlsx es un zip: si no arranca con PK no es un archivo valido.
+		assertThat(xlsx.length).isGreaterThan(0);
+		assertThat(xlsx[0]).isEqualTo((byte) 'P');
+		assertThat(xlsx[1]).isEqualTo((byte) 'K');
+	}
+
+	@Test
+	void reporteConsignacionDeUnComercioInexistente() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta/reporte")
+				.header("Authorization", "Bearer " + token)
+				.param("comercioId", "999"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void reporteConsignacionRequiereAutenticacion() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta/reporte").param("comercioId", "1"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	/** Los titulos del catalogo suelen venir con espacios adelante y no deben irse al principio. */
+	@Test
+	void estadoCuentaOrdenaPorTituloIgnorandoEspacios() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("comercioId", "1"))
+				.andExpect(status().isOk())
+				// Sin recortar, '  Martin Fierro' se iba al puesto 0 por sus espacios.
+				.andExpect(jsonPath("$[0].nombreLibro").value("El Principito"))
+				.andExpect(jsonPath("$[3].nombreLibro").value("Zz Libro Clonado"));
 	}
 
 	@Test
