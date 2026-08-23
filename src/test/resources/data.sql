@@ -31,12 +31,32 @@ insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_l
 insert into pi_pedido_item(pi_pedido_item_k,pi_pedido_pe,pi_cantidad,pi_nombre_libro,pi_pendiente,pi_editorial_ed,pi_ensucursal,pi_retirado)
 		values (4,1,1,'libro4',true,1,false,false);
 
+-- Comercio test data (destinatarios de remitos de consignacion)
+insert into cm_comercio(cm_comercio_k, cm_descripcion, cm_direccion, cm_contacto, cm_telefono, cm_cuit, cm_comision) values (1, 'Hotel Costa Azul', 'Costanera 100', 'Recepcion', '03446-100100', '30-11111111-1', 20.0);
+-- Sin comision cargada: el comercio paga precio de tapa completo.
+insert into cm_comercio(cm_comercio_k, cm_descripcion, cm_direccion, cm_contacto, cm_telefono, cm_cuit) values (2, 'Almacen Don Pedro', 'San Martin 250', 'Pedro', '03446-200200', '20-22222222-2');
+
 -- Remito test data
-insert into re_remito(re_remito_k, re_fecha, re_distribuidora_ed, re_observaciones) values (1, '2025-01-15', 1, 'Remito de prueba');
-insert into re_remito(re_remito_k, re_fecha, re_distribuidora_ed, re_observaciones) values (2, '2025-02-20', 2, 'Segundo remito');
+insert into re_remito(re_remito_k, re_fecha, re_tipo, re_distribuidora_ed, re_observaciones) values (1, '2025-01-15', 'DEVOLUCION', 1, 'Remito de prueba');
+insert into re_remito(re_remito_k, re_fecha, re_tipo, re_distribuidora_ed, re_observaciones) values (2, '2025-02-20', 'DEVOLUCION', 2, 'Segundo remito');
+-- Remitos de consignacion: 3 y 4 al mismo comercio, para que el estado de cuenta tenga algo que agrupar.
+insert into re_remito(re_remito_k, re_fecha, re_tipo, re_comercio_cm, re_observaciones) values (3, '2025-03-05', 'CONSIGNACION', 1, 'Consignacion hotel');
+insert into re_remito(re_remito_k, re_fecha, re_tipo, re_comercio_cm, re_observaciones) values (4, '2025-03-25', 'CONSIGNACION', 1, 'Reposicion hotel');
+insert into re_remito(re_remito_k, re_fecha, re_tipo, re_comercio_cm, re_observaciones) values (5, '2025-04-01', 'CONSIGNACION', 2, 'Consignacion almacen');
+-- Sin re_tipo: simula un remito anterior a la migracion, que debe seguir contando como devolucion.
+insert into re_remito(re_remito_k, re_fecha, re_distribuidora_ed, re_observaciones) values (6, '2024-12-01', 1, 'Remito heredado');
 
 insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (1, 1, 2, 'El Principito', 'Saint-Exupery', 'Salamandra', '978-1234567890', 1500.00);
 insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (2, 1, 1, 'Cien anos de soledad', 'Garcia Marquez', 'Sudamericana', '978-0987654321', 2500.00);
+-- El mismo titulo en dos remitos al mismo comercio: 3 + 2 = 5 ejemplares en una sola fila.
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (3, 3, 3, 'El Principito', 'Saint-Exupery', 'Salamandra', '978-1234567890', 1000.00);
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (4, 4, 2, 'El Principito', 'Saint-Exupery', 'Salamandra', '978-1234567890', 1000.00);
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (5, 5, 4, 'Rayuela', 'Cortazar', 'Alfaguara', '978-5555555555', 3000.00);
+-- Segundo titulo del comercio 1, para probar que cada remito lleva solo su lado.
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (6, 3, 2, 'Martin Fierro', 'Hernandez', 'Losada', '978-7777777777', 2000.00);
+-- Otro libro con el MISMO ISBN que 'El Principito': es lo que pasa en la base real, donde medio
+-- catalogo quedo con el ISBN en notacion cientifica y titulos ajenos comparten la cadena.
+insert into ri_remito_item(ri_remito_item_k, ri_remito_re, ri_cantidad, ri_nombre_libro, ri_autor, ri_editorial, ri_isbn, ri_precio) values (7, 3, 1, 'Zz Libro Clonado', 'Otro Autor', 'Otra Ed', '978-1234567890', 500.00);
 
 -- PedidoDistribuidora test data (1 per item)
 insert into pd_pedido_a_distribuidora(pd_pedido_a_distribuidora_k, pd_fecha, pd_distribuidora_ed, pd_pedido_realizado, pd_pedido_item_pi) values (1, '2025-03-10 10:00:00', 1, false, 1);
@@ -60,6 +80,7 @@ insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_auto
 ALTER TABLE users ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE roles ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE ed_editorial ALTER COLUMN ed_editorial_k RESTART WITH 10;
+ALTER TABLE cm_comercio ALTER COLUMN cm_comercio_k RESTART WITH 10;
 ALTER TABLE cl_cliente ALTER COLUMN cl_cliente_k RESTART WITH 10;
 ALTER TABLE pe_pedido ALTER COLUMN pe_pedido_k RESTART WITH 10;
 ALTER TABLE pi_pedido_item ALTER COLUMN pi_pedido_item_k RESTART WITH 10;

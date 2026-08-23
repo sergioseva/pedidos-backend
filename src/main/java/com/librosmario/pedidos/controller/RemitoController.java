@@ -17,7 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.librosmario.pedidos.entity.Recibo;
 import com.librosmario.pedidos.entity.Remito;
+import com.librosmario.pedidos.payload.ConsignacionEstadoCuentaDTO;
+import com.librosmario.pedidos.payload.LiquidacionConsignacionDTO;
+import com.librosmario.pedidos.payload.LiquidacionResultadoDTO;
+import com.librosmario.pedidos.service.LiquidacionConsignacionService;
 import com.librosmario.pedidos.service.RemitoService;
 
 @RestController
@@ -27,6 +32,9 @@ public class RemitoController {
 
 	@Autowired
 	RemitoService service;
+
+	@Autowired
+	LiquidacionConsignacionService liquidacionService;
 
 	@PostMapping(value = "/remitos", consumes = {"application/json"})
 	public ResponseEntity<Remito> createRemito(@RequestBody Remito remito) {
@@ -65,11 +73,13 @@ public class RemitoController {
 		}
 	}
 
+	/** {@code tipo} es opcional: sin el, devuelve devoluciones y consignaciones juntas. */
 	@GetMapping(value = "/remitos/search/findByAny")
 	public ResponseEntity<List<Remito>> findByAny(@Param("parametro") String parametro,
 	                                               @Param("fechaDesde") String fechaDesde,
-	                                               @Param("fechaHasta") String fechaHasta) {
-		List<Remito> remitos = service.findByAny(parametro, fechaDesde, fechaHasta);
+	                                               @Param("fechaHasta") String fechaHasta,
+	                                               @Param("tipo") String tipo) {
+		List<Remito> remitos = service.findByAny(parametro, fechaDesde, fechaHasta, tipo);
 		return ResponseEntity.ok(remitos);
 	}
 
@@ -77,9 +87,42 @@ public class RemitoController {
 	public ResponseEntity<List<Remito>> findByAll(@Param("distribuidora") String distribuidora,
 	                                               @Param("observaciones") String observaciones,
 	                                               @Param("fechaDesde") String fechaDesde,
-	                                               @Param("fechaHasta") String fechaHasta) {
-		List<Remito> remitos = service.findByAll(distribuidora, observaciones, fechaDesde, fechaHasta);
+	                                               @Param("fechaHasta") String fechaHasta,
+	                                               @Param("tipo") String tipo) {
+		List<Remito> remitos = service.findByAll(distribuidora, observaciones, fechaDesde, fechaHasta, tipo);
 		return ResponseEntity.ok(remitos);
+	}
+
+	/**
+	 * Cierra la cuenta de un comercio y emite los documentos.
+	 *
+	 * Las excepciones de negocio no se envuelven: un saldo insuficiente es un 400 con el detalle
+	 * de que titulo fallo, no un 500 generico.
+	 */
+	@PostMapping(value = "/remitos/consignacion/liquidar", consumes = {"application/json"})
+	public ResponseEntity<LiquidacionResultadoDTO> liquidar(@RequestBody LiquidacionConsignacionDTO liquidacion) {
+		return new ResponseEntity<>(liquidacionService.liquidar(liquidacion), HttpStatus.CREATED);
+	}
+
+	/** Emite el recibo de un remito de venta que habia quedado impago. */
+	@PostMapping(value = "/remitos/{id}/recibo")
+	public ResponseEntity<Recibo> pagarRemito(@PathVariable Integer id,
+			@Param("medioPago") String medioPago) {
+		return new ResponseEntity<>(liquidacionService.pagarRemito(id, medioPago), HttpStatus.CREATED);
+	}
+
+	@GetMapping(value = "/remitos/{id}/recibo")
+	public ResponseEntity<Recibo> getRecibo(@PathVariable Integer id) {
+		return ResponseEntity.ok(service.findReciboByRemito(id));
+	}
+
+	/** Que hay en la calle: libros entregados en consignacion, por comercio y titulo. */
+	@GetMapping(value = "/remitos/consignacion/estadocuenta")
+	public ResponseEntity<List<ConsignacionEstadoCuentaDTO>> estadoCuentaConsignacion(
+			@Param("comercioId") Integer comercioId,
+			@Param("fechaDesde") String fechaDesde,
+			@Param("fechaHasta") String fechaHasta) {
+		return ResponseEntity.ok(service.estadoCuentaConsignacion(comercioId, fechaDesde, fechaHasta));
 	}
 
 }

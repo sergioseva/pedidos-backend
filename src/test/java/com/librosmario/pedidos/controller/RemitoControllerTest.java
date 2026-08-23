@@ -144,4 +144,136 @@ public class RemitoControllerTest {
 		mockMvc.perform(get("/remitos/1"))
 				.andExpect(status().isUnauthorized());
 	}
+
+	@Test
+	void remitoExistenteQuedaComoDevolucion() throws Exception {
+		mockMvc.perform(get("/remitos/1")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.re_tipo").value("DEVOLUCION"))
+				.andExpect(jsonPath("$.re_comercio_cm").doesNotExist());
+	}
+
+	@Test
+	void createRemitoConsignacion() throws Exception {
+		mockMvc.perform(post("/remitos")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"re_fecha\":\"2025-06-01\",\"re_tipo\":\"CONSIGNACION\","
+						+ "\"re_observaciones\":\"Entrega hotel\","
+						+ "\"re_comercio_cm\":{\"id\":1},"
+						+ "\"items\":[{\"ri_nombre_libro\":\"Libro Consig\",\"ri_cantidad\":2,\"ri_precio\":500.0}]}"))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.re_tipo").value("CONSIGNACION"))
+				.andExpect(jsonPath("$.re_comercio_cm.descripcion").value("Hotel Costa Azul"))
+				.andExpect(jsonPath("$.re_distribuidora_ed").doesNotExist())
+				.andExpect(jsonPath("$.total").value(1000.0));
+	}
+
+	/** Un remito de consignacion no debe arrastrar una distribuidora aunque el cliente la mande. */
+	@Test
+	void consignacionIgnoraLaDistribuidora() throws Exception {
+		mockMvc.perform(post("/remitos")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"re_fecha\":\"2025-06-01\",\"re_tipo\":\"CONSIGNACION\","
+						+ "\"re_comercio_cm\":{\"id\":1},\"re_distribuidora_ed\":{\"id\":1}}"))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.re_distribuidora_ed").doesNotExist());
+	}
+
+	/** Un remito viejo sin re_tipo no puede desaparecer de la consulta de devoluciones. */
+	@Test
+	void findByAnyDevolucionIncluyeLosDeTipoNulo() throws Exception {
+		mockMvc.perform(get("/remitos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "heredado")
+				.param("tipo", "DEVOLUCION"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].re_observaciones").value("Remito heredado"));
+	}
+
+	@Test
+	void findByAnyFiltraPorTipo() throws Exception {
+		mockMvc.perform(get("/remitos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "")
+				.param("tipo", "CONSIGNACION"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(3))
+				.andExpect(jsonPath("$[?(@.re_tipo == \'DEVOLUCION\')]").isEmpty());
+	}
+
+	/**
+	 * Con el destinatario nullable, un INNER JOIN sobre la distribuidora borraria las
+	 * consignaciones del resultado aunque el termino matchee por otro lado.
+	 */
+	/** La consulta de consignacion pide los tres movimientos juntos. */
+	@Test
+	void findByAnyAceptaVariosTipos() throws Exception {
+		mockMvc.perform(get("/remitos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "")
+				.param("tipo", "CONSIGNACION,RETIRO,VENTA_CONSIGNACION"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(3))
+				.andExpect(jsonPath("$[?(@.re_tipo == 'DEVOLUCION')]").isEmpty());
+	}
+
+	@Test
+	void findByAnyEncuentraConsignacionPorComercio() throws Exception {
+		mockMvc.perform(get("/remitos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "Hotel"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(2));
+	}
+
+	@Test
+	void findByAnyEncuentraConsignacionPorLibro() throws Exception {
+		mockMvc.perform(get("/remitos/search/findByAny")
+				.header("Authorization", "Bearer " + token)
+				.param("parametro", "Rayuela"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].re_comercio_cm.descripcion").value("Almacen Don Pedro"));
+	}
+
+	/** Dos remitos al mismo comercio con el mismo titulo colapsan en una fila de 5 ejemplares. */
+	@Test
+	void estadoCuentaAgrupaPorComercioYTitulo() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("comercioId", "1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].comercio")
+						.value("Hotel Costa Azul"))
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].cantidad").value(5))
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].precio").value(1000.0))
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].subtotal").value(5000.0));
+	}
+
+	/** Sin comercioId trae todos los comercios; las devoluciones nunca entran. */
+	@Test
+	void estadoCuentaSoloIncluyeConsignaciones() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.nombreLibro == \'El Principito\')]").isNotEmpty())
+				.andExpect(jsonPath("$[?(@.nombreLibro == \'Rayuela\')]").isNotEmpty())
+				// 'Cien anos de soledad' esta en un remito de DEVOLUCION a distribuidora.
+				.andExpect(jsonPath("$[?(@.nombreLibro == \'Cien anos de soledad\')]").isEmpty());
+	}
+
+	@Test
+	void estadoCuentaFiltraPorFecha() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("comercioId", "1")
+				.param("fechaDesde", "2025-03-10"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].cantidad").value(2));
+	}
 }
