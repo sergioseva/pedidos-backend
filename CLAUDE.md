@@ -71,6 +71,12 @@ exception/    → Custom exceptions with @ControllerAdvice handlers
 - `/clientes/` — Customer management
 - `/catalogos/` — Book catalog with CSV import (`POST /catalogos/import`)
 - `/pedidosADistribuidoras/` — Distributor order management
+- `/remitos/` — Remitos (returns to distributors and consignment movements)
+- `/remitos/consignacion/estadocuenta` — Outstanding consignment balance per shop and title
+- `/remitos/consignacion/liquidar` — Settle a shop's account
+- `/remitos/{id}/recibo` — Issue or read the payment receipt of a sale remito
+- `/comercios/` — Consignment points of sale
+- `/ventas/` — Counter sales
 - `/api/user/me` — Current user info
 
 All repositories are also auto-exposed as REST endpoints via Spring Data REST with HATEOAS at paths defined by `@RepositoryRestResource` (e.g., `/librospedidos/` for PedidoItem, `/pedidosdistribuidora/` for PedidoDistribuidora, `/distribuidoras/` for Distribuidora).
@@ -86,19 +92,63 @@ Pedido (1) ──OneToOne──── (1) Cliente
                                       └──ManyToMany── (*) PedidoDistribuidora ──ManyToOne── Distribuidora
 
 Remito ──OneToMany── (*) RemitoItem ──ManyToOne── Catalogo
-   └──ManyToOne── Distribuidora
+   ├──ManyToOne── Distribuidora   (re_tipo = DEVOLUCION)
+   ├──ManyToOne── Comercio        (re_tipo = CONSIGNACION | RETIRO | VENTA_CONSIGNACION)
+   └──OneToOne ── Recibo          (only on VENTA_CONSIGNACION, optional)
+
+Venta ──OneToMany── (*) VentaItem
 
 User ──ManyToMany── Role (ROLE_ADMIN, ROLE_USER)
 ```
 
 Entities extend `DateAudit` (createdAt/updatedAt) or `UserDateAudit` (adds createdBy/updatedBy) for automatic JPA auditing. JPA metamodel classes (`Cliente_`, `Pedido_`, `PedidoItem_`) are used in Specification queries.
 
+### Remitos: four flows, one entity
+
+`Remito` covers four business flows, told apart by `re_tipo`:
+
+| `re_tipo` | Meaning | Destinatario |
+|---|---|---|
+| `DEVOLUCION` | books returned to a distributor | `re_distribuidora_ed` |
+| `CONSIGNACION` | books delivered on consignment to a point of sale | `re_comercio_cm` |
+| `RETIRO` | unsold copies coming back from the shop | `re_comercio_cm` |
+| `VENTA_CONSIGNACION` | copies the shop sold and now owes for | `re_comercio_cm` |
+
+Exactly one destinatario FK is set; `RemitoService.normalizarDestinatario` nulls the other. A null `re_tipo` counts as `DEVOLUCION` (rows predating the V5 migration).
+
+Because the destinatario is nullable, `RemitoSpecifications` **must** use `JoinType.LEFT`. An inner join drops half the remitos from the whole query, not just from that predicate — the OR-based `findByAny` would silently lose every consignment remito.
+
+### Consignment settlement
+
+There is **no inventory anywhere in this system** — `Catalogo` is the distributor's price list and `Venta` deducts nothing. The consignment balance is the only stock-like ledger, and it is *derived*, never stored:
+
+```
+saldo en la calle = CONSIGNACION − RETIRO − VENTA_CONSIGNACION
+```
+
+That signed aggregation is `RemitoItemRepository.estadoCuentaConsignacion`, whose `HAVING` drops settled titles. Its date filter applies **only to deliveries**: bounding the deductions too would exclude later retiros/ventas and inflate the balance.
+
+`LiquidacionConsignacionService.liquidar` closes a shop's account in one all-or-nothing transaction. It re-reads the balance from the database (never trusting the screen, which may be stale) and aggregates **both sides by title key** before comparing, so two rows of the same book cannot each pass individually and overdraw together. The key is ISBN **and** title, matching the SQL grouping: keyed on ISBN alone, two different books that share an ISBN share a balance — not hypothetical, since half the catalog has its ISBN stored in scientific notation (`9.78987E+12`) and unrelated titles collide.
+
+`Comercio.cm_comision` is the shop's cut (0-100). **Every new field on `Comercio` must also be copied in `ComercioService.update`** — the service predates the column and silently dropped it, so the form saved without complaint and every shop stayed at no commission, quietly billing cover price. The commission is copied onto `re_comision` at settlement time and `Recibo.rc_monto` is frozen likewise: renegotiating a percentage must never rewrite the money on an already-signed document.
+
+A sale remito has at most one recibo (`uk_rc_remito`); payment is optional and can be issued later via `POST /remitos/{id}/recibo`. `Remito.recibo` is mapped as the inverse side so every remito carries its payment state (`pagado`) — that is what makes unpaid sales findable at all. `emitirRecibo` sets **both sides** of the association by hand: saving only the owning side leaves an already-loaded remito reporting itself unpaid.
+
+Consignment sales deliberately do **not** touch `ve_venta` — the Ventas section stays the till.
+
 ### Database
 
-- **Production/Dev**: MySQL on port 1218, database `librosmario`
-- **Tests**: H2 in-memory (`jdbc:h2:mem:db`)
-- **Schema management**: `spring.jpa.hibernate.ddl-auto=update` (auto-migration)
+- **Production/Dev**: MySQL 8.0 on port 1218, database `librosmario`
+- **Tests**: H2 in-memory (`jdbc:h2:mem:db`), Flyway disabled — schema from Hibernate, seed rows from `src/test/resources/data.sql`
+- **Schema management**: `spring.jpa.hibernate.ddl-auto=update` plus **Flyway** migrations in `src/main/resources/db/migration` for what `ddl-auto` cannot do (type changes, backfills, drops)
 - **Manual schema additions**: `script_db.sql` (batch stats table, initial roles, PedidoItem column additions)
+
+Migrations to date: V2 catalog code column type · V3 Spring Batch v4→v5 tables · V4 PedidoDistribuidora join table → direct FK · V5 consignment remitos (`cm_comercio`, `re_tipo`, `re_comercio_cm`) · V6 settlement (`cm_comision`, `re_comision`, `rc_recibo`).
+
+Two rules that cost real debugging time:
+
+- **Flyway runs before Hibernate DDL**, so a migration that backfills a new column must add the column itself rather than leaving it to `ddl-auto`.
+- **Guard every `ADD COLUMN` behind an `information_schema` check** (see the `pedidos_add_column` procedure in V6). MySQL has no `ADD COLUMN IF NOT EXISTS`, and in development `ddl-auto` creates the column as soon as the entity exists. If that happens before the migration is written, the bare `ALTER` fails, Flyway records the version as failed, and **the application refuses to start** until the row is deleted by hand. This happened while V6 was being written.
 
 ### Security
 
@@ -106,7 +156,7 @@ Stateless JWT authentication. Public endpoints: `/api/auth/**`, `/actuator/**`. 
 
 ### Dynamic Queries
 
-Uses JPA Specification pattern (`JpaSpecificationExecutor`) for flexible search/filtering in `PedidoSpecifications`, `ClienteSpecifications`, `CatalogoSpecifications`. Search endpoints follow `findByAny` (OR logic) and `findByAll` (AND logic) naming conventions.
+Uses JPA Specification pattern (`JpaSpecificationExecutor`) for flexible search/filtering in `PedidoSpecifications`, `ClienteSpecifications`, `CatalogoSpecifications`, `RemitoSpecifications`. Search endpoints follow `findByAny` (OR logic) and `findByAll` (AND logic) naming conventions. `/remitos/search/*` accepts `tipo` as a comma-separated list, so the consignment screen can ask for a shop's three movement types at once.
 
 ### Batch Processing
 
