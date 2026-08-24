@@ -50,6 +50,14 @@ public class RemitoItem {
 	 
 	 @Column(name="ri_precio")
 	 private Double ri_precio;
+
+	 /**
+	  * Precio vigente, cuando se actualizo despues de la entrega. Va aparte de ri_precio para no
+	  * reescribir un remito ya emitido: la entrega reimpresa tiene que seguir diciendo con que
+	  * precio se entrego. El saldo y la liquidacion usan este si esta cargado.
+	  */
+	 @Column(name="ri_precio_actual")
+	 private Double ri_precio_actual;
 	 
 	 @Column(name="ri_factura")
 	 private String ri_factura;
@@ -112,6 +120,18 @@ public class RemitoItem {
 	public void setRi_precio(Double ri_precio) {
 		this.ri_precio = ri_precio;
 	}
+	public Double getRi_precio_actual() {
+		return ri_precio_actual;
+	}
+	public void setRi_precio_actual(Double ri_precio_actual) {
+		this.ri_precio_actual = ri_precio_actual;
+	}
+
+	/** El vigente si se actualizo, y si no el de la entrega. */
+	public Double getPrecioVigente() {
+		return ri_precio_actual != null ? ri_precio_actual : ri_precio;
+	}
+
 	public String getRi_factura() {
 		return ri_factura;
 	}

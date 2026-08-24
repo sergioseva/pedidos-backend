@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,13 +15,20 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.librosmario.pedidos.entity.Comercio;
 import com.librosmario.pedidos.entity.Distribuidora;
 import com.librosmario.pedidos.entity.Remito;
 import com.librosmario.pedidos.entity.RemitoItem;
+import com.librosmario.pedidos.exception.BadRequestException;
 import com.librosmario.pedidos.exception.ResourceNotFoundException;
+import com.librosmario.pedidos.entity.Catalogo;
+import com.librosmario.pedidos.entity.RemitoItem;
+import com.librosmario.pedidos.payload.ActualizacionPrecioDTO;
 import com.librosmario.pedidos.payload.ConsignacionEstadoCuentaDTO;
+import com.librosmario.pedidos.payload.ResultadoPreciosDTO;
+import com.librosmario.pedidos.repository.CatalogoRepository;
 import com.librosmario.pedidos.entity.Recibo;
 import com.librosmario.pedidos.repository.ComercioRepository;
 import com.librosmario.pedidos.repository.ReciboRepository;
@@ -47,6 +56,9 @@ public class RemitoService {
 
 	@Autowired
 	ReciboRepository reciboRepository;
+
+	@Autowired
+	CatalogoRepository catalogoRepository;
 
 	public Remito createRemito(Remito remito) {
 		normalizarDestinatario(remito);
@@ -140,6 +152,86 @@ public class RemitoService {
 	public Remito findById(Integer id) {
 		return repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Remito", "id", id));
+	}
+
+	/**
+	 * Deja el precio nuevo en los items de entrega de ese titulo, sin tocar ri_precio: el remito
+	 * de entrega ya emitido tiene que seguir mostrando el precio con el que salio.
+	 */
+	@Transactional
+	public void actualizarPrecio(ActualizacionPrecioDTO actualizacion) {
+		if (actualizacion.getComercioId() == null) {
+			throw new BadRequestException("Falta el comercio");
+		}
+		if (actualizacion.getPrecio() == null || actualizacion.getPrecio() < 0) {
+			throw new BadRequestException("Precio invalido");
+		}
+
+		String clave = claveTitulo(actualizacion.getIsbn(), actualizacion.getNombreLibro());
+		List<RemitoItem> items = remitoItemRepository.itemsDeConsignacion(actualizacion.getComercioId()).stream()
+				.filter(i -> claveTitulo(i.getRi_isbn(), i.getRi_nombre_libro()).equals(clave))
+				.collect(Collectors.toList());
+
+		if (items.isEmpty()) {
+			throw new ResourceNotFoundException("Titulo en consignacion", "titulo",
+					actualizacion.getNombreLibro());
+		}
+		items.forEach(i -> i.setRi_precio_actual(actualizacion.getPrecio()));
+		remitoItemRepository.saveAll(items);
+		logger.info("Precio actualizado a '{}' en {} items del comercio '{}'",
+				actualizacion.getPrecio(), items.size(), actualizacion.getComercioId());
+	}
+
+	/**
+	 * Trae los precios vigentes del catalogo para lo que el comercio tiene en consignacion.
+	 *
+	 * Solo alcanza a los titulos cuyo ISBN sigue coincidiendo: los entregados antes de la
+	 * reimportacion del catalogo tienen el ISBN viejo y no matchean, y esos hay que corregirlos a
+	 * mano. Por eso devuelve tambien cuantos quedaron sin coincidencia, en vez de decir que
+	 * actualizo todo.
+	 */
+	@Transactional
+	public ResultadoPreciosDTO actualizarPreciosDesdeCatalogo(Integer comercioId) {
+		List<RemitoItem> items = remitoItemRepository.itemsDeConsignacion(comercioId);
+		Set<String> actualizados = new HashSet<>();
+		Set<String> sinCoincidencia = new HashSet<>();
+
+		for (RemitoItem item : items) {
+			String clave = claveTitulo(item.getRi_isbn(), item.getRi_nombre_libro());
+			Double precio = precioDeCatalogo(item.getRi_isbn());
+			if (precio == null) {
+				sinCoincidencia.add(clave);
+				continue;
+			}
+			item.setRi_precio_actual(precio);
+			actualizados.add(clave);
+		}
+		remitoItemRepository.saveAll(items);
+		// Un titulo puede tener varias entregas: se cuentan titulos, que es lo que se ve en pantalla.
+		sinCoincidencia.removeAll(actualizados);
+		logger.info("Precios del catalogo aplicados al comercio '{}': {} titulos, {} sin coincidencia",
+				comercioId, actualizados.size(), sinCoincidencia.size());
+		return new ResultadoPreciosDTO(actualizados.size(), sinCoincidencia.size());
+	}
+
+	private Double precioDeCatalogo(String isbn) {
+		if (isbn == null || isbn.trim().isEmpty()) {
+			return null;
+		}
+		return catalogoRepository.findByIsbn(isbn.trim()).stream()
+				.map(Catalogo::getPrecio)
+				.filter(p -> p != null && p > 0)
+				.max(Double::compare)
+				.orElse(null);
+	}
+
+	/** Misma clave que usa la liquidacion: ISBN y titulo, recortados y en minusculas. */
+	private String claveTitulo(String isbn, String nombreLibro) {
+		return normalizar(isbn) + "|" + normalizar(nombreLibro);
+	}
+
+	private String normalizar(String valor) {
+		return valor == null ? "" : valor.trim().toLowerCase();
 	}
 
 	/** El mismo detalle que se imprime, en .xlsx, para que el negocio lo cruce con sus existencias. */

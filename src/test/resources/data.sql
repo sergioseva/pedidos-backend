@@ -77,6 +77,8 @@ insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_auto
 -- A plain-digit ISBN: this is what a barcode reader actually emits, and what the real Luongo
 -- catalog stores. Rows 1-3 above keep their dashes so the normalizing fallback stays covered.
 insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (4, 'LU004', 'Pan y manteca', 'Cocinero Anonimo', 6477.27, 'Sudamericana', '9789871051014', 'cocina');
+-- Mismo ISBN que 'El Principito' en consignacion, para probar que se trae el precio del catalogo.
+insert into cg_catalogo(cg_catalogo_k, cg_codigo_luongo, cg_descripcion, cg_autor, cg_precio, cg_editorial, cg_isbn, cg_observaciones) values (5, 'LU005', 'El Principito', 'Saint-Exupery', 4000.0, 'Salamandra', '978-1234567890', 'infantil');
 
 -- Reset identity counters after explicit ID inserts (required for H2 2.x)
 ALTER TABLE users ALTER COLUMN id RESTART WITH 10;

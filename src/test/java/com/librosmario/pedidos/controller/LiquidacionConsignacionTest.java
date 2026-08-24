@@ -2,6 +2,7 @@ package com.librosmario.pedidos.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -291,6 +292,94 @@ public class LiquidacionConsignacionTest {
 				.param("comercioId", "1"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].cantidad").value(1));
+	}
+
+	// --- Precios actualizables ---
+
+	private org.springframework.test.web.servlet.ResultActions actualizarPrecio(double precio) throws Exception {
+		return mockMvc.perform(put("/remitos/consignacion/precio")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"comercioId\":1,\"isbn\":\"978-1234567890\","
+						+ "\"nombreLibro\":\"El Principito\",\"precio\":" + precio + "}"));
+	}
+
+	@Test
+	void elSaldoSeValuaConElPrecioNuevo() throws Exception {
+		actualizarPrecio(2000.0).andExpect(status().isNoContent());
+
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token).param("comercioId", "1"))
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].precio").value(2000.0))
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].subtotal").value(10000.0));
+	}
+
+	/** El remito de entrega ya se firmo: tiene que seguir diciendo con que precio salio. */
+	@Test
+	void elRemitoDeEntregaConservaSuPrecio() throws Exception {
+		actualizarPrecio(2000.0).andExpect(status().isNoContent());
+
+		mockMvc.perform(get("/remitos/3").header("Authorization", "Bearer " + token))
+				.andExpect(jsonPath("$.items[?(@.ri_nombre_libro == 'El Principito')].ri_precio")
+						.value(1000.0));
+	}
+
+	@Test
+	void seCobraElPrecioNuevoAlLiquidar() throws Exception {
+		actualizarPrecio(2000.0).andExpect(status().isNoContent());
+
+		liquidar("{\"comercioId\":1,\"registrarPago\":false,\"lineas\":[{"
+				+ "\"isbn\":\"978-1234567890\",\"nombreLibro\":\"El Principito\",\"precio\":2000.0,"
+				+ "\"cantidadVendida\":2,\"cantidadDevuelta\":0}]}")
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.totalTapa").value(4000.0))
+				.andExpect(jsonPath("$.netoAPagar").value(3200.0));
+	}
+
+	@Test
+	void unPrecioNegativoEsRechazado() throws Exception {
+		actualizarPrecio(-5.0).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void noSePuedeActualizarUnTituloQueElComercioNoTiene() throws Exception {
+		mockMvc.perform(put("/remitos/consignacion/precio")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"comercioId\":1,\"isbn\":\"000\",\"nombreLibro\":\"Ajeno\",\"precio\":10}"))
+				.andExpect(status().isNotFound());
+	}
+
+	/**
+	 * Solo se actualizan los titulos cuyo ISBN sigue coincidiendo con el catalogo; el resto queda
+	 * para corregir a mano y por eso se informa cuantos son.
+	 *
+	 * Los dos que matchean son 'El Principito' y 'Zz Libro Clonado', que comparten ISBN: buscar
+	 * por ISBN les asigna el mismo precio aunque sean libros distintos. Es el limite de este
+	 * atajo, y la razon por la que la edicion manual tiene que seguir existiendo.
+	 */
+	@Test
+	void traerPreciosDelCatalogoInformaLosQueNoCoinciden() throws Exception {
+		mockMvc.perform(post("/remitos/consignacion/1/precios")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.actualizados").value(2))
+				.andExpect(jsonPath("$.sinCoincidencia").value(2));
+
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token).param("comercioId", "1"))
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')].precio").value(4000.0));
+	}
+
+	@Test
+	void traerPreciosDelCatalogoNoTocaElRemitoDeEntrega() throws Exception {
+		mockMvc.perform(post("/remitos/consignacion/1/precios")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(get("/remitos/3").header("Authorization", "Bearer " + token))
+				.andExpect(jsonPath("$.items[?(@.ri_nombre_libro == 'El Principito')].ri_precio")
+						.value(1000.0));
 	}
 
 	// --- Recibo diferido ---

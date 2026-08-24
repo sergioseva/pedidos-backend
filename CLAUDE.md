@@ -136,6 +136,8 @@ A sale remito has at most one recibo (`uk_rc_remito`); payment is optional and c
 
 Consignment sales deliberately do **not** touch `ve_venta` — the Ventas section stays the till.
 
+Prices can be updated after delivery. The new value goes to `ri_precio_actual`, **never over `ri_precio`**: the delivery remito was already signed and has to keep saying what price it went out at. The balance and the settlement use `coalesce(ri_precio_actual, ri_precio)`. `POST /remitos/consignacion/{id}/precios` pulls current prices from the catalog by ISBN and reports how many titles found no match — two titles sharing an ISBN get the same price, which is the limit of that shortcut and the reason manual editing has to stay.
+
 The balance query orders by `TRIM(ri_nombre_libro)`: a good part of the catalog has titles stored with leading spaces, and without trimming those sort ahead of everything else and the listing looks unsorted. Note the `GROUP BY` still uses the raw title, so the same book delivered under both spellings shows as two lines — a leftover of the corrupted April import, same root cause as the scientific-notation ISBNs.
 
 `GET /remitos/consignacion/estadocuenta/reporte` returns the same detail as an `.xlsx` (`ConsignacionReporteExcel`, built with the POI already on the classpath for catalog import).

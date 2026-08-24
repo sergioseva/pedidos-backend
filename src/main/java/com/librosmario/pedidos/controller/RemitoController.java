@@ -22,7 +22,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.librosmario.pedidos.entity.Recibo;
 import com.librosmario.pedidos.entity.Remito;
+import com.librosmario.pedidos.payload.ActualizacionPrecioDTO;
 import com.librosmario.pedidos.payload.ConsignacionEstadoCuentaDTO;
+import com.librosmario.pedidos.payload.ResultadoPreciosDTO;
 import com.librosmario.pedidos.payload.LiquidacionConsignacionDTO;
 import com.librosmario.pedidos.payload.LiquidacionResultadoDTO;
 import com.librosmario.pedidos.service.LiquidacionConsignacionService;
@@ -117,6 +119,19 @@ public class RemitoController {
 	@GetMapping(value = "/remitos/{id}/recibo")
 	public ResponseEntity<Recibo> getRecibo(@PathVariable Integer id) {
 		return ResponseEntity.ok(service.findReciboByRemito(id));
+	}
+
+	/** Deja un precio nuevo para un titulo que el comercio tiene en consignacion. */
+	@PutMapping(value = "/remitos/consignacion/precio", consumes = {"application/json"})
+	public ResponseEntity<Void> actualizarPrecio(@RequestBody ActualizacionPrecioDTO actualizacion) {
+		service.actualizarPrecio(actualizacion);
+		return ResponseEntity.noContent().build();
+	}
+
+	/** Trae del catalogo los precios vigentes de lo que el comercio tiene en consignacion. */
+	@PostMapping(value = "/remitos/consignacion/{comercioId}/precios")
+	public ResponseEntity<ResultadoPreciosDTO> actualizarPreciosDesdeCatalogo(@PathVariable Integer comercioId) {
+		return ResponseEntity.ok(service.actualizarPreciosDesdeCatalogo(comercioId));
 	}
 
 	/** El detalle de un comercio como .xlsx, con el mismo filtro que tenia la pantalla. */

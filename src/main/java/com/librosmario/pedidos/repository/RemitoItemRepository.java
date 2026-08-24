@@ -23,8 +23,8 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 	 *
 	 * Agrupa por nombre y no por ISBN porque los items cargados a mano suelen venir sin ISBN, y
 	 * agrupar por una clave nula juntaria titulos distintos en una sola fila. El precio se toma
-	 * con max(): dentro del grupo es el mismo salvo que haya cambiado entre entregas, y en ese
-	 * caso el vigente es el mas alto.
+	 * con max() sobre el vigente -- el actualizado si lo hay, si no el de la entrega -- porque
+	 * dentro del grupo es el mismo salvo que haya cambiado entre entregas.
 	 *
 	 * El filtro de fechas se aplica solo a las entregas. Acotarlo tambien a las bajas dejaria
 	 * afuera retiros y ventas posteriores al rango y el saldo saldria inflado.
@@ -38,7 +38,7 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 			+ "  coalesce(sum(CASE WHEN r.re_tipo = 'CONSIGNACION' THEN i.ri_cantidad ELSE 0 END), 0L),"
 			+ "  coalesce(sum(CASE WHEN r.re_tipo = 'RETIRO' THEN i.ri_cantidad ELSE 0 END), 0L),"
 			+ "  coalesce(sum(CASE WHEN r.re_tipo = 'VENTA_CONSIGNACION' THEN i.ri_cantidad ELSE 0 END), 0L),"
-			+ "  coalesce(max(i.ri_precio), 0D))"
+			+ "  coalesce(max(coalesce(i.ri_precio_actual, i.ri_precio)), 0D))"
 			+ " FROM RemitoItem i JOIN i.ri_remito_re r JOIN r.re_comercio_cm c"
 			+ " WHERE r.re_tipo IN ('CONSIGNACION', 'RETIRO', 'VENTA_CONSIGNACION')"
 			+ "   AND (:comercioId IS NULL OR c.id = :comercioId)"
@@ -50,4 +50,12 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 			+ " ORDER BY c.descripcion ASC, TRIM(i.ri_nombre_libro) ASC")
 	List<ConsignacionEstadoCuentaDTO> estadoCuentaConsignacion(@Param("comercioId") Integer comercioId,
 			@Param("desde") Date desde, @Param("hasta") Date hasta);
+
+	/**
+	 * Items de consignacion de un comercio, para poder actualizarles el precio. Solo los de
+	 * entrega: los de retiro y venta son movimientos ya cerrados y no se retocan.
+	 */
+	@Query("SELECT i FROM RemitoItem i JOIN i.ri_remito_re r"
+			+ " WHERE r.re_tipo = 'CONSIGNACION' AND r.re_comercio_cm.id = :comercioId")
+	List<RemitoItem> itemsDeConsignacion(@Param("comercioId") Integer comercioId);
 }
