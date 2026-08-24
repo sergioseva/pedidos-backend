@@ -170,6 +170,14 @@ Spring Batch imports semicolon-delimited CSV files from Luongo distributor. Two 
 
 Triggered via `POST /catalogos/import` multipart file upload. File upload path configured via `pedidos.luongo.path`. Chunk size: 100, skip limit: 100. `JobCompletionNotificationListener` tracks import statistics in `bt_batchstatistics` table.
 
+### Version reporting
+
+`/actuator/info` is public on purpose — it is the only way to tell which version an environment is running. The chain is `release.yml` → `--build-arg BUILD_VERSION` → `ENV INFO_APP_VERSION` in the Dockerfile → `info.app.version` here; outside the image it falls back to `dev`.
+
+Publishing `info.*` needs `management.info.env.enabled=true`: since Spring Boot 2.6 that contributor is off by default, so the properties can be defined and the endpoint still answers `{}` — which is exactly what happened, unnoticed, because an endpoint going empty breaks no build.
+
+`ActuatorInfoTest` asserts against the properties **file** rather than the running context: `src/test/resources/application.properties` shadows the main one (same classpath location), so no context-based test can see the configuration that actually ships.
+
 ### Logging
 
 Uses Log4j2 (Logback excluded from dependencies). Local profile uses `log4j2-local.xml` config.
