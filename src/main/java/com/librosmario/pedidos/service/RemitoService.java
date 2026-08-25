@@ -14,6 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,9 @@ import com.librosmario.pedidos.entity.RemitoItem;
 import com.librosmario.pedidos.payload.ActualizacionPrecioDTO;
 import com.librosmario.pedidos.payload.ConsignacionEstadoCuentaDTO;
 import com.librosmario.pedidos.payload.ResultadoPreciosDTO;
+import com.librosmario.pedidos.entity.BorradorRemito;
+import com.librosmario.pedidos.payload.BorradorDTO;
+import com.librosmario.pedidos.repository.BorradorRemitoRepository;
 import com.librosmario.pedidos.repository.CatalogoRepository;
 import com.librosmario.pedidos.entity.Recibo;
 import com.librosmario.pedidos.repository.ComercioRepository;
@@ -59,6 +64,9 @@ public class RemitoService {
 
 	@Autowired
 	CatalogoRepository catalogoRepository;
+
+	@Autowired
+	BorradorRemitoRepository borradorRepository;
 
 	public Remito createRemito(Remito remito) {
 		normalizarDestinatario(remito);
@@ -223,6 +231,48 @@ public class RemitoService {
 				.filter(p -> p != null && p > 0)
 				.max(Double::compare)
 				.orElse(null);
+	}
+
+	// --- Borrador del remito en curso ---
+
+	/**
+	 * Guarda lo que se lleva cargado. Es un upsert por usuario y tipo: cada operador tiene un
+	 * borrador por pantalla y el ultimo guardado pisa al anterior, que es exactamente lo que se
+	 * quiere de un autoguardado.
+	 */
+	@Transactional
+	public void guardarBorrador(BorradorDTO borrador) {
+		String usuario = usuarioActual();
+		if (usuario == null) {
+			throw new BadRequestException("No hay usuario para guardar el borrador");
+		}
+		BorradorRemito registro = borradorRepository
+				.findByUsuarioYTipo(usuario, borrador.getTipo())
+				.orElseGet(BorradorRemito::new);
+		registro.setBr_usuario(usuario);
+		registro.setBr_tipo(borrador.getTipo());
+		registro.setBr_contenido(borrador.getContenido());
+		registro.setBr_fecha(new Date());
+		borradorRepository.save(registro);
+	}
+
+	/** Devuelve null si el usuario no tiene nada a medio cargar de ese tipo. */
+	public BorradorDTO obtenerBorrador(String tipo) {
+		return borradorRepository.findByUsuarioYTipo(usuarioActual(), tipo)
+				.map(b -> new BorradorDTO(b.getBr_tipo(), b.getBr_contenido()))
+				.orElse(null);
+	}
+
+	@Transactional
+	public void borrarBorrador(String tipo) {
+		borradorRepository.findByUsuarioYTipo(usuarioActual(), tipo)
+				.ifPresent(borradorRepository::delete);
+	}
+
+	/** El borrador es de quien lo carga: el de un operador no le aparece a otro. */
+	private String usuarioActual() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return auth == null ? null : auth.getName();
 	}
 
 	/** Misma clave que usa la liquidacion: ISBN y titulo, recortados y en minusculas. */

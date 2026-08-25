@@ -172,6 +172,12 @@ Spring Batch imports semicolon-delimited CSV files from Luongo distributor. Two 
 
 Triggered via `POST /catalogos/import` multipart file upload. File upload path configured via `pedidos.luongo.path`. Chunk size: 100, skip limit: 100. `JobCompletionNotificationListener` tracks import statistics in `bt_batchstatistics` table.
 
+### Remito drafts
+
+`BorradorRemito` (`br_borrador`, migration V8) holds a remito being loaded, one row per user and `tipo`, upserted by the autosave. The content is stored **opaque**, exactly as the screen sends it, so adding a field to the items does not force migrating half-loaded drafts.
+
+It deliberately lives in its own table rather than as a state on `Remito`: a draft sharing the remito table would have to be excluded from every query, and missing one would contaminate the consignment balance.
+
 ### Version reporting
 
 `/actuator/info` is public on purpose — it is the only way to tell which version an environment is running. The chain is `release.yml` → `--build-arg BUILD_VERSION` → `ENV INFO_APP_VERSION` in the Dockerfile → `info.app.version` here; outside the image it falls back to `dev`.

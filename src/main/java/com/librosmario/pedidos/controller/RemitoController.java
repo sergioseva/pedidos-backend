@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.librosmario.pedidos.entity.Recibo;
 import com.librosmario.pedidos.entity.Remito;
 import com.librosmario.pedidos.payload.ActualizacionPrecioDTO;
+import com.librosmario.pedidos.payload.BorradorDTO;
 import com.librosmario.pedidos.payload.ConsignacionEstadoCuentaDTO;
 import com.librosmario.pedidos.payload.ResultadoPreciosDTO;
 import com.librosmario.pedidos.payload.LiquidacionConsignacionDTO;
@@ -119,6 +120,27 @@ public class RemitoController {
 	@GetMapping(value = "/remitos/{id}/recibo")
 	public ResponseEntity<Recibo> getRecibo(@PathVariable Integer id) {
 		return ResponseEntity.ok(service.findReciboByRemito(id));
+	}
+
+	// --- Borrador del remito en curso ---
+
+	@PutMapping(value = "/remitos/borrador", consumes = {"application/json"})
+	public ResponseEntity<Void> guardarBorrador(@RequestBody BorradorDTO borrador) {
+		service.guardarBorrador(borrador);
+		return ResponseEntity.noContent().build();
+	}
+
+	/** 204 sin cuerpo cuando no hay nada a medio cargar, para no obligar a distinguir un 404. */
+	@GetMapping(value = "/remitos/borrador")
+	public ResponseEntity<BorradorDTO> obtenerBorrador(@RequestParam String tipo) {
+		BorradorDTO borrador = service.obtenerBorrador(tipo);
+		return borrador == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(borrador);
+	}
+
+	@DeleteMapping(value = "/remitos/borrador")
+	public ResponseEntity<Void> borrarBorrador(@RequestParam String tipo) {
+		service.borrarBorrador(tipo);
+		return ResponseEntity.noContent().build();
 	}
 
 	/** Deja un precio nuevo para un titulo que el comercio tiene en consignacion. */
