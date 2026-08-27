@@ -331,6 +331,11 @@ public class RemitoService {
 	 */
 	public List<ConsignacionEstadoCuentaDTO> estadoCuentaConsignacion(Integer comercioId, String fechaDesde,
 			String fechaHasta) {
+		return estadoCuentaConsignacion(comercioId, null, fechaDesde, fechaHasta);
+	}
+
+	public List<ConsignacionEstadoCuentaDTO> estadoCuentaConsignacion(Integer comercioId, String libro,
+			String fechaDesde, String fechaHasta) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date desde = null;
 		Date hasta = null;
@@ -344,7 +349,8 @@ public class RemitoService {
 		} catch (ParseException e) {
 			logger.error("Error parsing date", e);
 		}
-		return remitoItemRepository.estadoCuentaConsignacion(comercioId, desde, hasta);
+		String termino = libro == null || libro.trim().isEmpty() ? null : libro.trim();
+		return remitoItemRepository.estadoCuentaConsignacion(comercioId, termino, desde, hasta);
 	}
 
 	/** {@code tipo} admite varios separados por coma, p.ej. "CONSIGNACION,RETIRO". */

@@ -174,9 +174,10 @@ public class RemitoController {
 	@GetMapping(value = "/remitos/consignacion/estadocuenta")
 	public ResponseEntity<List<ConsignacionEstadoCuentaDTO>> estadoCuentaConsignacion(
 			@Param("comercioId") Integer comercioId,
+			@Param("libro") String libro,
 			@Param("fechaDesde") String fechaDesde,
 			@Param("fechaHasta") String fechaHasta) {
-		return ResponseEntity.ok(service.estadoCuentaConsignacion(comercioId, fechaDesde, fechaHasta));
+		return ResponseEntity.ok(service.estadoCuentaConsignacion(comercioId, libro, fechaDesde, fechaHasta));
 	}
 
 }

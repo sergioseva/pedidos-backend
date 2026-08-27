@@ -156,7 +156,7 @@ public class LiquidacionConsignacionService {
 		// 3 cada una contra un saldo de 5 tienen que fallar, y comparadas de a una pasarian.
 		Map<String, Long> saldos = new HashMap<>();
 		for (ConsignacionEstadoCuentaDTO fila
-				: remitoItemRepository.estadoCuentaConsignacion(comercio.getId(), null, null)) {
+				: remitoItemRepository.estadoCuentaConsignacion(comercio.getId(), null, null, null)) {
 			saldos.merge(claveTitulo(fila.getIsbn(), fila.getNombreLibro()), fila.getCantidad(), Long::sum);
 		}
 

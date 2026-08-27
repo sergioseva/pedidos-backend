@@ -26,6 +26,9 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 	 * con max() sobre el vigente -- el actualizado si lo hay, si no el de la entrega -- porque
 	 * dentro del grupo es el mismo salvo que haya cambiado entre entregas.
 	 *
+	 * El filtro por libro va en la consulta y no en la pantalla: la gracia de tener que elegir un
+	 * negocio o un titulo es no traer todo, asi que filtrar despues de traerlo no serviria.
+	 *
 	 * El filtro de fechas se aplica solo a las entregas. Acotarlo tambien a las bajas dejaria
 	 * afuera retiros y ventas posteriores al rango y el saldo saldria inflado.
 	 *
@@ -42,6 +45,7 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 			+ " FROM RemitoItem i JOIN i.ri_remito_re r JOIN r.re_comercio_cm c"
 			+ " WHERE r.re_tipo IN ('CONSIGNACION', 'RETIRO', 'VENTA_CONSIGNACION')"
 			+ "   AND (:comercioId IS NULL OR c.id = :comercioId)"
+			+ "   AND (:libro IS NULL OR lower(i.ri_nombre_libro) LIKE lower(concat('%', :libro, '%')))"
 			+ "   AND (r.re_tipo <> 'CONSIGNACION'"
 			+ "        OR ((:desde IS NULL OR r.re_fecha >= :desde)"
 			+ "            AND (:hasta IS NULL OR r.re_fecha <= :hasta)))"
@@ -49,7 +53,7 @@ public interface RemitoItemRepository extends JpaRepository<RemitoItem, Integer>
 			+ " HAVING sum(CASE WHEN r.re_tipo = 'CONSIGNACION' THEN i.ri_cantidad ELSE -i.ri_cantidad END) > 0"
 			+ " ORDER BY c.descripcion ASC, TRIM(i.ri_nombre_libro) ASC")
 	List<ConsignacionEstadoCuentaDTO> estadoCuentaConsignacion(@Param("comercioId") Integer comercioId,
-			@Param("desde") Date desde, @Param("hasta") Date hasta);
+			@Param("libro") String libro, @Param("desde") Date desde, @Param("hasta") Date hasta);
 
 	/**
 	 * Items de consignacion de un comercio, para poder actualizarles el precio. Solo los de

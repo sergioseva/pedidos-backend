@@ -268,6 +268,46 @@ public class RemitoControllerTest {
 				.andExpect(jsonPath("$[?(@.nombreLibro == \'Cien anos de soledad\')]").isEmpty());
 	}
 
+	/** Buscar por libro es lo que reemplaza a listar todos los negocios de una. */
+	@Test
+	void estadoCuentaFiltraPorLibro() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("libro", "principito"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')]").isNotEmpty())
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'Rayuela')]").isEmpty());
+	}
+
+	/** Sin comercio, para poder preguntar quien tiene un titulo. */
+	@Test
+	void buscarPorLibroCruzaTodosLosNegocios() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("libro", "rayuela"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].comercio").value("Almacen Don Pedro"));
+	}
+
+	@Test
+	void elFiltroPorLibroIgnoraMayusculas() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("libro", "PRINCIPITO"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.nombreLibro == 'El Principito')]").isNotEmpty());
+	}
+
+	@Test
+	void combinaNegocioYLibro() throws Exception {
+		mockMvc.perform(get("/remitos/consignacion/estadocuenta")
+				.header("Authorization", "Bearer " + token)
+				.param("comercioId", "2")
+				.param("libro", "principito"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(0));
+	}
+
 	@Test
 	void reporteConsignacionDevuelveUnXlsx() throws Exception {
 		byte[] xlsx = mockMvc.perform(get("/remitos/consignacion/estadocuenta/reporte")
