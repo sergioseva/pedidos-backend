@@ -154,6 +154,8 @@ Migrations to date: V2 catalog code column type · V3 Spring Batch v4→v5 table
 Two rules that cost real debugging time:
 
 - **Flyway runs before Hibernate DDL**, so a migration that backfills a new column must add the column itself rather than leaving it to `ddl-auto`.
+- **`CREATE TABLE IF NOT EXISTS` is a trap for the same race.** If `ddl-auto` created the table first, the migration finds it there, does nothing, and records itself as successful — so the table keeps whatever Hibernate inferred. That is how `br_borrador` ended up with a `TINYTEXT` content column and no unique key while V8 said `MEDIUMTEXT`; it surfaced in production two days later. Prefer a migration that fails loudly, and when a table may already exist, follow up with explicit `MODIFY`/`ADD CONSTRAINT` statements (see V9) rather than trusting the `CREATE`.
+- **Column types cannot be verified by the test suite.** Tests run on H2 with a Hibernate-generated schema, so a mapping that is wrong on MySQL can pass: `@Lob` on a `String` without an explicit `length` gives an unbounded CLOB on H2 and a 255-byte `TINYTEXT` on MySQL. Always set `length` explicitly on text columns, and assert the mapping (see `BorradorRemitoTest.laColumnaDelContenidoEsGrande`).
 - **Guard every `ADD COLUMN` behind an `information_schema` check** (see the `pedidos_add_column` procedure in V6). MySQL has no `ADD COLUMN IF NOT EXISTS`, and in development `ddl-auto` creates the column as soon as the entity exists. If that happens before the migration is written, the bare `ALTER` fails, Flyway records the version as failed, and **the application refuses to start** until the row is deleted by hand. This happened while V6 was being written.
 
 ### Security

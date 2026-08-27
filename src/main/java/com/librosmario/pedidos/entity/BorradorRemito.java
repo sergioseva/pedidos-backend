@@ -7,7 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 /**
@@ -35,8 +34,12 @@ public class BorradorRemito {
 	@Column(name = "br_tipo", length = 20)
 	private String br_tipo;
 
-	@Lob
-	@Column(name = "br_contenido")
+	/**
+	 * Longitud explicita y no @Lob: sobre un String, @Lob sin largo toma el default de 255 y el
+	 * dialecto de MySQL lo mapea a TINYTEXT, que se llena con un remito de unos pocos libros.
+	 * 16 MB es MEDIUMTEXT, que es lo que hace falta para una carga larga.
+	 */
+	@Column(name = "br_contenido", length = 16777215)
 	private String br_contenido;
 
 	@Column(name = "br_fecha")

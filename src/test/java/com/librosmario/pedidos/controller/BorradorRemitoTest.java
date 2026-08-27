@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,6 +148,24 @@ public class BorradorRemitoTest {
 		mockMvc.perform(get("/remitos/borrador")
 				.header("Authorization", "Bearer " + token).param("tipo", "CONSIGNACION"))
 				.andExpect(jsonPath("$.contenido").value(grande));
+	}
+
+	/**
+	 * El largo de la columna se verifica sobre el mapeo y no guardando datos, porque los tests
+	 * corren sobre H2 y ahi el tipo no es el mismo: con @Lob sin largo, H2 daba un CLOB sin
+	 * limite y el test de 200k pasaba, mientras MySQL creaba un TINYTEXT de 255 bytes que en
+	 * produccion reventaba con el primer remito de varios libros.
+	 */
+	@Test
+	void laColumnaDelContenidoEsGrande() throws Exception {
+		jakarta.persistence.Column columna = com.librosmario.pedidos.entity.BorradorRemito.class
+				.getDeclaredField("br_contenido")
+				.getAnnotation(jakarta.persistence.Column.class);
+
+		assertThat(columna).isNotNull();
+		assertThat(columna.length())
+				.as("sin un largo explicito, el dialecto de MySQL mapea el String a TINYTEXT")
+				.isGreaterThanOrEqualTo(16777215);
 	}
 
 	@Test
