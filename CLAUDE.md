@@ -118,6 +118,8 @@ Exactly one destinatario FK is set; `RemitoService.normalizarDestinatario` nulls
 
 Because the destinatario is nullable, `RemitoSpecifications` **must** use `JoinType.LEFT`. An inner join drops half the remitos from the whole query, not just from that predicate — the OR-based `findByAny` would silently lose every consignment remito.
 
+`ComercioRepository.resumenDeConsignacion` feeds the shop dropdown with how many copies each one currently holds. It is computed per request and **deliberately not cached**: one aggregate query over every shop costs a couple of milliseconds, while a cache would need invalidating on every delivery, pickup, sale, settlement and price change — and missing one would show a wrong number with nothing failing. Its `LEFT JOIN` is what keeps shops with nothing out in the list; without it they would vanish and could not be picked to deliver to.
+
 ### Consignment settlement
 
 There is **no inventory anywhere in this system** — `Catalogo` is the distributor's price list and `Venta` deducts nothing. The consignment balance is the only stock-like ledger, and it is *derived*, never stored:

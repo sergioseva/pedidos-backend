@@ -159,6 +159,46 @@ public class ComercioControllerTest {
 				.andExpect(jsonPath("$[0].descripcion").value("Hotel Costa Azul"));
 	}
 
+	/**
+	 * El desplegable muestra cuantos ejemplares tiene cada negocio. El comercio 1 recibio 5 'El
+	 * Principito', 2 'Martin Fierro', 1 'Zz Libro Clonado' y 1 mas con espacios: 9 en total.
+	 */
+	@Test
+	void elResumenTraeLoQueTieneCadaNegocio() throws Exception {
+		mockMvc.perform(get("/comercios/consignacion")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.descripcion == 'Hotel Costa Azul')].unidades").value(9))
+				.andExpect(jsonPath("$[?(@.descripcion == 'Almacen Don Pedro')].unidades").value(4));
+	}
+
+	/** Un negocio sin nada tiene que seguir apareciendo: si no, no se lo puede elegir. */
+	@Test
+	void elResumenIncluyeLosNegociosSinLibros() throws Exception {
+		mockMvc.perform(post("/comercios")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"descripcion\":\"Kiosco Vacio\"}"))
+				.andExpect(status().isCreated());
+
+		mockMvc.perform(get("/comercios/consignacion")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(jsonPath("$[?(@.descripcion == 'Kiosco Vacio')].unidades").value(0));
+	}
+
+	@Test
+	void elResumenTraeLaComisionParaNoPedirlaAparte() throws Exception {
+		mockMvc.perform(get("/comercios/consignacion")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(jsonPath("$[?(@.descripcion == 'Hotel Costa Azul')].comision").value(20.0));
+	}
+
+	@Test
+	void elResumenRequiereAutenticacion() throws Exception {
+		mockMvc.perform(get("/comercios/consignacion"))
+				.andExpect(status().isUnauthorized());
+	}
+
 	@Test
 	void requiresAuthentication() throws Exception {
 		mockMvc.perform(get("/comercios"))

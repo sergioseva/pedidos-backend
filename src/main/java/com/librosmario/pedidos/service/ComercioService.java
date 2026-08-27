@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.librosmario.pedidos.entity.Comercio;
 import com.librosmario.pedidos.exception.ResourceNotFoundException;
+import com.librosmario.pedidos.payload.ResumenComercioDTO;
 import com.librosmario.pedidos.repository.ComercioRepository;
 
 @Service
@@ -17,6 +18,11 @@ public class ComercioService {
 
 	public List<Comercio> findAll() {
 		return repository.findAllByOrderByDescripcionAsc();
+	}
+
+	/** Para el desplegable: cada comercio con cuantos ejemplares tiene en consignacion. */
+	public List<ResumenComercioDTO> resumenDeConsignacion() {
+		return repository.resumenDeConsignacion();
 	}
 
 	public Comercio findById(Integer id) {

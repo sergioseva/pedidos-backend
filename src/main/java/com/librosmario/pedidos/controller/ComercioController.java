@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.librosmario.pedidos.entity.Comercio;
+import com.librosmario.pedidos.payload.ResumenComercioDTO;
 import com.librosmario.pedidos.service.ComercioService;
 
 @RestController
@@ -31,6 +32,12 @@ public class ComercioController {
 	@GetMapping(value = "/comercios")
 	public ResponseEntity<List<Comercio>> getAll() {
 		return ResponseEntity.ok(service.findAll());
+	}
+
+	/** Cada comercio con lo que tiene en consignacion, para elegir sabiendo. */
+	@GetMapping(value = "/comercios/consignacion")
+	public ResponseEntity<List<ResumenComercioDTO>> resumenDeConsignacion() {
+		return ResponseEntity.ok(service.resumenDeConsignacion());
 	}
 
 	@GetMapping(value = "/comercios/{id}")
