@@ -89,6 +89,12 @@ public class RemitoController {
 		return ResponseEntity.ok(remitos);
 	}
 
+	/** Todo lo que los comercios deben, sin importar cuando se vendio: para que no se pierda filtrando por periodo. */
+	@GetMapping(value = "/remitos/consignacion/impagos")
+	public ResponseEntity<List<Remito>> ventasSinPagar() {
+		return ResponseEntity.ok(service.findVentasSinPagar());
+	}
+
 	@GetMapping(value = "/remitos/search/findByAll")
 	public ResponseEntity<List<Remito>> findByAll(@Param("distribuidora") String distribuidora,
 	                                               @Param("observaciones") String observaciones,

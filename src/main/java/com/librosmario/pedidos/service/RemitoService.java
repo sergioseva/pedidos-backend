@@ -326,6 +326,15 @@ public class RemitoService {
 	}
 
 	/**
+	 * Todas las ventas de consignacion impagas, de cualquier comercio y sin limite de fecha: la
+	 * consulta de remitos siempre pide un periodo, asi que una venta vieja sin cobrar queda
+	 * invisible hasta que alguien ensancha el rango a mano. Esta no tiene ese filtro.
+	 */
+	public List<Remito> findVentasSinPagar() {
+		return repository.findAll(RemitoSpecifications.ventaSinPagar());
+	}
+
+	/**
 	 * Que hay hoy en la calle: por comercio y por libro, lo entregado en consignacion.
 	 * Sin registro de ventas ni devoluciones, lo entregado ES el saldo pendiente.
 	 */

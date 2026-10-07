@@ -453,6 +453,48 @@ public class LiquidacionConsignacionTest {
 				.andExpect(status().isBadRequest());
 	}
 
+	/**
+	 * La consulta de impagos no pide periodo: sin eso, una venta vieja sin cobrar quedaria
+	 * invisible hasta ensanchar el rango de fechas a mano, que es justo el problema que resuelve.
+	 */
+	@Test
+	void ventasSinPagarApareceLaVentaRecienLiquidada() throws Exception {
+		liquidar(linea(3, 0)).andExpect(status().isCreated());
+
+		mockMvc.perform(get("/remitos/consignacion/impagos")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.items[0].ri_nombre_libro == 'El Principito')]").isNotEmpty());
+	}
+
+	@Test
+	void ventasSinPagarNoIncluyeLasYaCobradas() throws Exception {
+		String respuesta = liquidar("{\"comercioId\":1,\"registrarPago\":true,\"medioPago\":\"Efectivo\",\"lineas\":[{"
+				+ "\"isbn\":\"978-1234567890\",\"nombreLibro\":\"El Principito\",\"precio\":1000.0,"
+				+ "\"cantidadVendida\":3,\"cantidadDevuelta\":0}]}")
+				.andExpect(status().isCreated())
+				.andReturn().getResponse().getContentAsString();
+		String ventaId = respuesta.replaceAll(".*\"remitoVentaId\":(\\d+).*", "$1");
+
+		mockMvc.perform(get("/remitos/consignacion/impagos")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.re_remito_k == " + ventaId + ")]").isEmpty());
+	}
+
+	/** Ni entregas ni retiros son cobrables: solo las ventas pueden aparecer como impagas. */
+	@Test
+	void ventasSinPagarSoloTraeRemitosDeVenta() throws Exception {
+		// Deja un retiro Y una venta impaga, para probar que el retiro queda afuera.
+		liquidar(linea(3, 2)).andExpect(status().isCreated());
+
+		mockMvc.perform(get("/remitos/consignacion/impagos")
+				.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].re_tipo").value("VENTA_CONSIGNACION"));
+	}
+
 	@Test
 	void requiereAutenticacion() throws Exception {
 		mockMvc.perform(post("/remitos/consignacion/liquidar")

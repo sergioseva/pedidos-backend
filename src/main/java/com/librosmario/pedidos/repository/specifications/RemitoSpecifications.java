@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.librosmario.pedidos.entity.Comercio;
 import com.librosmario.pedidos.entity.Distribuidora;
+import com.librosmario.pedidos.entity.Recibo;
 import com.librosmario.pedidos.entity.Remito;
 import com.librosmario.pedidos.entity.RemitoItem;
 
@@ -75,6 +76,28 @@ public final class RemitoSpecifications {
 	    	Join<Remito, Comercio> comercioJoin = root.join("re_comercio_cm", JoinType.LEFT);
 	        return builder.equal(comercioJoin.get("id"), comercioId);
 	    };
+	}
+
+	/**
+	 * Remitos de venta sin recibo, sin ningun filtro de fecha: una venta vieja sin cobrar tiene
+	 * que poder encontrarse sin tener que adivinar o ensanchar el periodo de busqueda.
+	 *
+	 * LEFT JOIN a proposito: un INNER JOIN solo trae remitos que SI tienen recibo, justo lo
+	 * contrario de lo que se busca.
+	 *
+	 * El orden se fija aca, por `re_fecha` ascendente, para que la deuda mas vieja aparezca
+	 * primero. No se puede pedir con un {@code Sort} comun: Spring Data interpreta el guion bajo
+	 * del nombre del campo como separador de propiedad anidada y busca una propiedad "re" que no
+	 * existe.
+	 */
+	public static Specification<Remito> ventaSinPagar() {
+		return (root, query, builder) -> {
+			Join<Remito, Recibo> reciboJoin = root.join("recibo", JoinType.LEFT);
+			query.orderBy(builder.asc(root.get("re_fecha")));
+			return builder.and(
+					builder.equal(root.get("re_tipo"), Remito.TIPO_VENTA_CONSIGNACION),
+					builder.isNull(reciboJoin.get("rc_recibo_k")));
+		};
 	}
 
 	public static Specification<Remito> fechaGreaterOrEquals(Date fecha) {
